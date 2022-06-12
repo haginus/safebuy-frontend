@@ -12,37 +12,57 @@ import { ColorSchemeName, Pressable } from 'react-native';
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
+import { AuthState } from '../lib/model/AuthState';
 import ModalScreen from '../screens/ModalScreen';
 import NotFoundScreen from '../screens/NotFoundScreen';
 import TabOneScreen from '../screens/TabOneScreen';
 import TabTwoScreen from '../screens/TabTwoScreen';
+import SplashScreen from '../screens/SplashScreen';
+import SignInScreen from '../screens/auth/SignInScreen';
+import SignUpScreen from '../screens/auth/SignUpScreen';
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
 
-export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
+export default function Navigation({ colorScheme, authState }: { colorScheme: ColorSchemeName, authState: AuthState }) {
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
       theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <RootNavigator />
+      <RootNavigator authState={ authState } />
     </NavigationContainer>
   );
 }
 
-/**
- * A root stack navigator is often used for displaying modals on top of all other content.
- * https://reactnavigation.org/docs/modal
- */
-const Stack = createNativeStackNavigator<RootStackParamList>();
 
-function RootNavigator() {
+function RootNavigator({ authState }: { authState: AuthState }) {
+  /**
+   * A root stack navigator is often used for displaying modals on top of all other content.
+   * https://reactnavigation.org/docs/modal
+   */
+ const Stack = createNativeStackNavigator<RootStackParamList>();
   return (
     <Stack.Navigator>
+      {authState.isLoading ? (
+        <Stack.Screen name="Splash" component={SplashScreen} />
+      ) : authState.userToken ? (
       <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
+      ) : (
+        <Stack.Screen name="Auth" component={AuthNavigator} options={{ headerShown: false, animationTypeForReplace: authState.isSignout ? 'pop' : 'push' }} />
+      ) }
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
       <Stack.Group screenOptions={{ presentation: 'modal' }}>
-        <Stack.Screen name="Modal" component={ModalScreen} />
+        <Stack.Screen name="Modal" component={ModalScreen} options={{ title: 'What is a personalized ticket?' }} />
       </Stack.Group>
+    </Stack.Navigator>
+  );
+}
+
+function AuthNavigator() {
+  const Stack = createNativeStackNavigator();
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="SignIn" component={SignInScreen} options={{ title: 'Sign in' }} />
+      <Stack.Screen name="SignUp" component={SignUpScreen} options={{ title: 'Sign up' }} />
     </Stack.Navigator>
   );
 }
@@ -66,8 +86,8 @@ function BottomTabNavigator() {
         name="TabOne"
         component={TabOneScreen}
         options={({ navigation }: RootTabScreenProps<'TabOne'>) => ({
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          title: 'Sell',
+          tabBarIcon: ({ color }) => <TabBarIcon name="plus-circle" color={color} />,
           headerRight: () => (
             <Pressable
               onPress={() => navigation.navigate('Modal')}
