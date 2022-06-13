@@ -31,8 +31,9 @@ export type AuthStackScreenProps<Screen extends keyof AuthStackParamList> = Nati
 >;
 
 export type RootTabParamList = {
-  TabOne: undefined;
-  TabTwo: undefined;
+  ListingTab: NavigatorScreenParams<ListingStackParamList | undefined>;
+  SellTab: undefined;
+  AccountTab: undefined;
 };
 
 export type AuthStackParamList = {
@@ -43,4 +44,14 @@ export type AuthStackParamList = {
 export type RootTabScreenProps<Screen extends keyof RootTabParamList> = CompositeScreenProps<
   BottomTabScreenProps<RootTabParamList, Screen>,
   NativeStackScreenProps<RootStackParamList>
+>;
+
+export type ListingStackParamList = {
+  ListingTabHome: undefined;
+  ListingDetails: { id: number };
+};
+
+export type ListingStackScreenProps<Screen extends keyof ListingStackParamList> = NativeStackScreenProps<
+  ListingStackParamList,
+  Screen
 >;

@@ -15,13 +15,13 @@ import useColorScheme from '../hooks/useColorScheme';
 import { AuthState } from '../lib/model/AuthState';
 import ModalScreen from '../screens/ModalScreen';
 import NotFoundScreen from '../screens/NotFoundScreen';
-import TabOneScreen from '../screens/TabOneScreen';
 import TabTwoScreen from '../screens/TabTwoScreen';
 import SplashScreen from '../screens/SplashScreen';
 import SignInScreen from '../screens/auth/SignInScreen';
 import SignUpScreen from '../screens/auth/SignUpScreen';
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
+import { ListingTabNavigator } from './ListingTabNavigator';
 
 export default function Navigation({ colorScheme, authState }: { colorScheme: ColorSchemeName, authState: AuthState }) {
   return (
@@ -78,16 +78,17 @@ function BottomTabNavigator() {
 
   return (
     <BottomTab.Navigator
-      initialRouteName="TabOne"
+      initialRouteName="ListingTab"
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme].tint,
       }}>
       <BottomTab.Screen
-        name="TabOne"
-        component={TabOneScreen}
-        options={({ navigation }: RootTabScreenProps<'TabOne'>) => ({
-          title: 'Sell',
-          tabBarIcon: ({ color }) => <TabBarIcon name="plus-circle" color={color} />,
+        name="ListingTab"
+        component={ListingTabNavigator}
+        options={({ navigation }: RootTabScreenProps<'ListingTab'>) => ({
+          title: 'Listings',
+          headerShown: false,
+          tabBarIcon: ({ color }) => <TabBarIcon name="ticket" color={color} />,
           headerRight: () => (
             <Pressable
               onPress={() => navigation.navigate('Modal')}
@@ -105,14 +106,23 @@ function BottomTabNavigator() {
         })}
       />
       <BottomTab.Screen
-        name="TabTwo"
+        name="SellTab"
         component={TabTwoScreen}
         options={{
-          title: 'Tab Two',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          title: 'Add a listing',
+          tabBarIcon: ({ color }) => <TabBarIcon name="plus-circle" color={color} />,
+        }}
+      />
+      <BottomTab.Screen
+        name="AccountTab"
+        component={TabTwoScreen}
+        options={{
+          title: 'Account',
+          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
         }}
       />
     </BottomTab.Navigator>
+    
   );
 }
 
