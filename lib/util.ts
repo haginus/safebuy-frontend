@@ -32,3 +32,13 @@ export async function apiCall<R>(service: Service, url: string, method: string, 
     throw { message: "Something went wrong", code: "Unknown" };
   }
 }
+
+export function formatPrice(price: number) {
+  const formatter = new Intl.NumberFormat('ro-RO', {
+    style: 'currency',
+    currency: 'lei',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  });
+  return formatter.format(price).toLowerCase();
+}

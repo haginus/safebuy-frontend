@@ -1,5 +1,6 @@
 import { Image, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button } from '../../components/Button';
 import { ArialText } from '../../components/StyledText';
 import { Tag } from '../../components/Tag';
 import { Text, View, ScrollView } from '../../components/Themed';
@@ -7,6 +8,7 @@ import Colors from '../../constants/Colors';
 import useColorScheme from '../../hooks/useColorScheme';
 
 import { Listing } from '../../lib/model/Listing';
+import { formatPrice } from '../../lib/util';
 import { ListingStackScreenProps, RootTabScreenProps } from '../../types';
 
 export default function ListingDetailsScreen({ navigation, route }: ListingStackScreenProps<'ListingDetails'>) {
@@ -23,7 +25,7 @@ export default function ListingDetailsScreen({ navigation, route }: ListingStack
       "icon": "ticket"
     },
     "ownerId": 1,
-    "price": 550.0,
+    "price": 550.10,
     "owner": {
       "id": 1,
       "firstName": "Andrei",
@@ -40,7 +42,13 @@ export default function ListingDetailsScreen({ navigation, route }: ListingStack
       />
       <View style={styles.titleView}>
         <Text style={styles.title}>{listing.title}</Text>
-        <ArialText style={[styles.price, { color: Colors[colorScheme].tint }]}>{listing.price} lei</ArialText>
+        <ArialText style={[styles.price, { color: Colors[colorScheme].tint }]}>
+          {formatPrice(listing.price)}
+        </ArialText>
+        <View style={styles.listingActions}>
+          <Button icon="shopping-basket" title='Buy'  />
+          <Button icon="edit" title='Edit' />
+        </View>
       </View>
 
       <View style={[styles.section, styles.tagSection]}>
@@ -51,6 +59,13 @@ export default function ListingDetailsScreen({ navigation, route }: ListingStack
         <Text style={styles.sectionHeader}>Description</Text>
         <Text>{ listing.description }</Text>
       </View>
+
+      { listing.owner && (
+        <View style={styles.section}>
+          <Text style={styles.sectionHeader}>Sold by</Text>
+          <Text>{ listing.owner.firstName } { listing.owner.lastName }</Text>
+        </View>
+      ) }
     </ScrollView>
   );
 }
@@ -65,7 +80,6 @@ const styles = StyleSheet.create({
   },
   titleView: {
     padding: 16,
-    paddingBottom: 22,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     marginTop: -16,
@@ -79,9 +93,15 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#002F34'
   },
+  listingActions: {
+    marginTop: 12,
+    flexDirection: 'row',
+  },
   section: {
     padding: 16,
     marginTop: 16,
+    marginHorizontal: 12,
+    borderRadius: 8,
   },
   sectionHeader: {
     fontWeight: '500',

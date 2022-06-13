@@ -3,7 +3,7 @@
  * https://reactnavigation.org/docs/getting-started
  *
  */
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -86,9 +86,9 @@ function BottomTabNavigator() {
         name="ListingTab"
         component={ListingTabNavigator}
         options={({ navigation }: RootTabScreenProps<'ListingTab'>) => ({
-          title: 'Listings',
+          title: 'Search',
           headerShown: false,
-          tabBarIcon: ({ color }) => <TabBarIcon name="ticket" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon  name="shopping-search" color={color} />,
           headerRight: () => (
             <Pressable
               onPress={() => navigation.navigate('Modal')}
@@ -105,12 +105,20 @@ function BottomTabNavigator() {
           ),
         })}
       />
+       <BottomTab.Screen
+        name="YourListingsTab"
+        component={TabTwoScreen}
+        options={{
+          title: 'Your listings',
+          tabBarIcon: ({ color }) => <TabBarIcon name="ticket" color={color} />,
+        }}
+      />
       <BottomTab.Screen
         name="SellTab"
         component={TabTwoScreen}
         options={{
           title: 'Add a listing',
-          tabBarIcon: ({ color }) => <TabBarIcon name="plus-circle" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="plus-circle-outline" color={color} />,
         }}
       />
       <BottomTab.Screen
@@ -118,7 +126,7 @@ function BottomTabNavigator() {
         component={TabTwoScreen}
         options={{
           title: 'Account',
-          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="account-circle" color={color} />,
         }}
       />
     </BottomTab.Navigator>
@@ -130,8 +138,8 @@ function BottomTabNavigator() {
  * You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
  */
 function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
+  name: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
   color: string;
 }) {
-  return <FontAwesome size={30} style={{ marginBottom: -3 }} {...props} />;
+  return <MaterialCommunityIcons size={24} style={{ marginBottom: -3 }} {...props} />;
 }
