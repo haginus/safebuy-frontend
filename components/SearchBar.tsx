@@ -1,13 +1,17 @@
 import { StyleSheet } from "react-native";
+import Colors from "../constants/Colors";
+import useColorScheme from "../hooks/useColorScheme";
 import { CircleIcon } from "./ListingCategoryIcon";
 import { Text, TextInput, View } from "./Themed";
 
 export function SearchBar() {
+  const colorScheme = useColorScheme();
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { borderBottomColor: Colors[colorScheme].border }]}>
       <TextInput 
         style={styles.searchBar} 
-        lightBackgroundColor="#eee" 
+        lightBackgroundColor="#eee"
+        darkBackgroundColor="#222"
         placeholder="Search..."
         autoCapitalize="none"
         autoCorrect={false}
@@ -24,7 +28,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 8,
-    borderBottomColor: "#ddd",
     borderBottomWidth: 1,
   },
   searchIcon: {

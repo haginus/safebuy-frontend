@@ -1,6 +1,8 @@
-import { Image, StyleSheet, TouchableHighlight } from "react-native";
+import { Image, StyleSheet, TouchableHighlight, View } from "react-native";
+import Colors from "../constants/Colors";
+import useColorScheme from "../hooks/useColorScheme";
 import { Listing } from "../lib/model/Listing";
-import { Text, View } from "./Themed";
+import { Text, View as StyledView } from "./Themed";
 
 export interface ListingCardProps {
   listing: Listing;
@@ -8,9 +10,11 @@ export interface ListingCardProps {
 }
 
 export function ListingCard({ listing, onPress }: ListingCardProps) {
+  const colorScheme = useColorScheme();
+  
   return (
     <TouchableHighlight onPress={ onPress } style={ styles.highlight}>
-      <View style={styles.listingContainer}>
+      <StyledView style={styles.listingContainer} darkColor="#222">
         <Image
           style={styles.coverImage}
           source={require("../assets/images/icon.png")}
@@ -21,12 +25,12 @@ export function ListingCard({ listing, onPress }: ListingCardProps) {
             <Text style={styles.price}>{listing.price} lei</Text>
           </View>
           <View>
-            <Text style={styles.ownerInfo}>
+            <Text style={ { color: Colors[colorScheme].muted }}>
               {listing.owner.firstName} {listing.owner.lastName}
             </Text>
           </View>
         </View>
-      </View>
+      </StyledView>
     </TouchableHighlight>
   );
 
@@ -56,9 +60,6 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
-  },
-  ownerInfo: {
-    color: "#444",
   },
   title: {
     fontSize: 16,

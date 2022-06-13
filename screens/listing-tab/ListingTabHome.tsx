@@ -29,7 +29,7 @@ export default function ListingTabHome({ navigation }: ListingStackScreenProps<'
   }
   return (
 
-    <SafeAreaView style={styles.container} edges={['right', 'top', 'left']}>
+    <SafeAreaView style={styles.container} edges={['right', 'left']}>
       {/* <View style={styles.searchBar} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" /> */}
       <SearchBar />
       <ScrollView style={styles.scrollView}>

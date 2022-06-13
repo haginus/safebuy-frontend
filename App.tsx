@@ -63,7 +63,7 @@ export default function App() {
     const bootstrapAsync = async () => {
       let userToken = null;
       try {
-        userToken = await SecureStore.getItemAsync('userToken');
+        userToken = await SecureStore.getItemAsync('userToken') || 'token';
       } catch (e) {
         // Restoring token failed
       }

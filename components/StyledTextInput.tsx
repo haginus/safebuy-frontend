@@ -14,8 +14,8 @@ export const FieldTextInput = forwardRef<any, FieldTextInputProps>((props, ref) 
   return (
     <View style={styles.container}>
       <Text style={styles.label} numberOfLines={1}>{label}</Text>
-      <TextInput {...inputProps} ref={ref} style={[styles.field, ...(error ? [styles.fieldError] : []), props.style]} />
-      <Text style={[styles.hint, ...(error ? [styles.errorHint] : [])]} numberOfLines={1}>{error || hint}</Text>
+      <TextInput {...inputProps} ref={ref} style={[styles.field, !!error && styles.fieldError, props.style]} />
+      <Text style={[styles.hint, !!error && styles.errorHint ]} numberOfLines={1}>{error || hint}</Text>
     </View>
   );
 });

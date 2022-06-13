@@ -4,7 +4,7 @@
  */
 
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
-import { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
+import { CompositeNavigationProp, CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 declare global {
@@ -51,7 +51,10 @@ export type ListingStackParamList = {
   ListingDetails: { id: number };
 };
 
-export type ListingStackScreenProps<Screen extends keyof ListingStackParamList> = NativeStackScreenProps<
-  ListingStackParamList,
-  Screen
+export type ListingStackScreenProps<Screen extends keyof ListingStackParamList> = CompositeScreenProps<
+  NativeStackScreenProps<ListingStackParamList, Screen>,
+  CompositeScreenProps<
+    RootTabScreenProps<'ListingTab'>,
+    NativeStackScreenProps<RootStackParamList>
+  >
 >;
