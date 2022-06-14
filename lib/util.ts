@@ -1,11 +1,11 @@
-import { Service, USER_API_URL } from "./constants";
+import { Service, USER_API_URL, PAYMENT_API_URL } from "./constants";
 import * as SecureStore from 'expo-secure-store';
 
 export async function apiCall<R>(service: Service, url: string, method: string, data?: any) {
   const urls = {
     [Service.USER]: USER_API_URL,
     [Service.MARKETPLACE]: 'null',
-    [Service.PAYMENT]: 'null'
+    [Service.PAYMENT]: PAYMENT_API_URL,
   }
   
   const resultUrl = new URL(url, urls[service]).toString();
@@ -18,9 +18,7 @@ export async function apiCall<R>(service: Service, url: string, method: string, 
   try {
     const result = await fetch(resultUrl, {
       method,
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers,
       body: JSON.stringify(data)
     });
     if(!result.ok) {

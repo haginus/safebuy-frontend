@@ -36,7 +36,6 @@ export default function SignInScreen() {
       const registerData = {...data, birthDate: "1971-01-01" };
       const result = await apiCall<AuthResponse>(Service.USER, "/auth/sign-up", "POST", registerData);
       signIn(result);
-      console.log(result)
     } catch (error) {
       console.log(error);
     };

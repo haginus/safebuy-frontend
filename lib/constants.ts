@@ -1,4 +1,5 @@
 export const USER_API_URL = "http://localhost:8081";
+export const PAYMENT_API_URL = "http://localhost:8083";
 
 export enum Service {
   USER = "user",

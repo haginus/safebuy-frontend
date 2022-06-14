@@ -22,6 +22,7 @@ import SignUpScreen from '../screens/auth/SignUpScreen';
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
 import { ListingTabNavigator } from './ListingTabNavigator';
+import AccountScreen from '../screens/AccountScreen';
 
 export default function Navigation({ colorScheme, authState }: { colorScheme: ColorSchemeName, authState: AuthState }) {
   return (
@@ -123,7 +124,7 @@ function BottomTabNavigator() {
       />
       <BottomTab.Screen
         name="AccountTab"
-        component={TabTwoScreen}
+        component={AccountScreen}
         options={{
           title: 'Account',
           tabBarIcon: ({ color }) => <TabBarIcon name="account-circle" color={color} />,

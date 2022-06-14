@@ -8,11 +8,17 @@ import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
 import { AuthState } from './lib/model/AuthState';
+import { fetchCurrentUser } from './store/userSlice';
+import { useDispatch } from 'react-redux';
+import { useAppDispatch } from './hooks/storeHooks';
+import { fetchAccount } from './store/paymentSlice';
 
 
 export default function App() {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
+
+  const storeDispatch = useAppDispatch();
 
   const [state, dispatch] = useReducer<Reducer<AuthState, { type: string, token: string | null }>>(
     (prevState, action) => {
@@ -65,6 +71,7 @@ export default function App() {
       let userToken = null;
       try {
         userToken = await SecureStore.getItemAsync('userToken') || 'token';
+        await storeDispatch(fetchCurrentUser());
       } catch (e) {
         // Restoring token failed
       }
