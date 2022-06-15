@@ -24,6 +24,7 @@ import LinkingConfiguration from './LinkingConfiguration';
 import { ListingTabNavigator } from './ListingTabNavigator';
 import AccountScreen from '../screens/AccountScreen';
 import { PaymentNavigator } from './PaymentNavigator';
+import ListingEditScreen from '../screens/listing-edit/ListingEditScreen';
 
 export default function Navigation({ colorScheme, authState }: { colorScheme: ColorSchemeName, authState: AuthState }) {
   return (
@@ -118,7 +119,7 @@ function BottomTabNavigator() {
       />
       <BottomTab.Screen
         name="SellTab"
-        component={TabTwoScreen}
+        component={ListingEditScreen}
         options={{
           title: 'Add a listing',
           tabBarIcon: ({ color }) => <TabBarIcon name="plus-circle-outline" color={color} />,
