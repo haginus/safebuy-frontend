@@ -1,7 +1,8 @@
 import { combineReducers, configureStore, createAsyncThunk as _createAsyncThunk } from '@reduxjs/toolkit'
 import { persistStore, persistReducer } from 'redux-persist'
 import paymentSlice from './paymentSlice';
-import userSlice from './userSlice'
+import userSlice from './userSlice';
+import marketplaceSlice from './marketplaceSlice';
 import storage from '@react-native-async-storage/async-storage';
 
 const persistConfig = {
@@ -13,6 +14,7 @@ const persistConfig = {
 const reducers = combineReducers({
   user: userSlice,
   payment: paymentSlice,
+  marketplace: marketplaceSlice,
  });
 
 const persistedReducer = persistReducer(persistConfig, reducers);

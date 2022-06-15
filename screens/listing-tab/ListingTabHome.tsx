@@ -1,53 +1,56 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ListingCard } from '../../components/ListingCard';
+import { OfflineComponent } from '../../components/OfflineComponent';
 import { SearchBar } from '../../components/SearchBar';
+import { useAppDispatch, useAppSelector } from '../../hooks/storeHooks';
 import { Listing } from '../../lib/model/Listing';
 import { wait } from '../../lib/util';
+import { searchListings } from '../../store/marketplaceSlice';
 import { ListingStackScreenProps } from '../../types';
 
 export default function ListingTabHome({ navigation }: ListingStackScreenProps<'ListingTabHome'>) {
   const [refreshing, setRefreshing] = useState(false);
 
+  const searchListingsResult = useAppSelector(state => state.marketplace.searchListingsResult);
+  const searchString = useAppSelector(state => state.marketplace.searchString);
+  const searchCategory = useAppSelector(state => state.marketplace.searchSelectedCategory);
+  const dispatch = useAppDispatch();
+
+  const [error, setError] = useState<boolean>(false);
+
   const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    wait(2000).then(() => setRefreshing(false));
+    onSearch();
   }, []);
-  
-  const listing: Listing = {
-    "id": 1,
-    "title": "Abonament SAGA GA",
-    "description": "Un bilet la un festival foarte NAȘPA.",
-    "needsPersonalization": true,
-    "listingCategory": {
-      "id": 1,
-      "name": "Tickets",
-      "icon": "ticket"
-    },
-    "ownerId": 1,
-    "price": 550.0,
-    "owner": {
-      "id": 1,
-      "firstName": "Andrei",
-      "lastName": "Hagi",
-      "birthDate": "1999-08-08",
-      "email": "hagiandrei.ah@gmail.com"
+
+  const onSearch = async () => {
+    setRefreshing(true);
+    const result = await dispatch(searchListings());
+    setRefreshing(false);
+    if(result.meta.requestStatus == 'rejected') {
+      setError(true);
     }
-  }
+  };
+
+  useEffect(() => {
+    onSearch();
+  }, []);
+
   return (
     <SafeAreaView style={styles.container} edges={['right', 'left']}>
-      {/* <View style={styles.searchBar} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" /> */}
       <SearchBar />
       <ScrollView style={styles.scrollView} refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
           />
-        }>
-        { Array.from({ length: 15 }).map((_, index) => 
-          ( <ListingCard listing={listing} key={index} onPress={() => navigation.push('ListingDetails', { id: 1 }) } />) ) }
+        }
+      >
+        { error && <OfflineComponent />}
+        { searchListingsResult && searchListingsResult.map((listing, index) => 
+          ( <ListingCard listing={listing} key={index} onPress={() => navigation.push('ListingDetails', { id: listing.id }) } />) ) }
       </ScrollView>
     </SafeAreaView>
   );

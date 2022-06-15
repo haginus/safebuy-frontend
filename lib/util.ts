@@ -45,3 +45,15 @@ export function wait(timeout: number) {
 export function formatCardNumber(cardNumber: string) {
   return '••• ' + cardNumber.substring(cardNumber.length - 4);
 }
+
+export function formatUrlParams(url: string, params: { [key: string]: any }) {
+  const urlParts = url.split('?');
+  const urlPath = urlParts[0];
+  const urlParams = urlParts[1] ? new URLSearchParams(urlParts[1]) : new URLSearchParams();
+  Object.keys(params).forEach(key => {
+    if(params[key] != null) {
+      urlParams.set(key, params[key])
+    }
+  });
+  return `${urlPath}?${urlParams.toString()}`;
+}
