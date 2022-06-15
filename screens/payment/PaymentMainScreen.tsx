@@ -6,7 +6,7 @@ import { PaymentMethodSnapshot } from '../../components/payment/PaymentMethodSna
 
 import { SafeAreaView, ScrollView, Text, View as StyledView } from '../../components/Themed';
 import Colors from '../../constants/Colors';
-import GlobalStyles from '../../constants/GlobalStyles';
+import { useGlobalStyles } from '../../constants/GlobalStyles';
 import { useAppDispatch, useAppSelector } from '../../hooks/storeHooks';
 import useColorScheme from '../../hooks/useColorScheme';
 import { formatPrice } from '../../lib/util';
@@ -17,6 +17,8 @@ const MIN_TRANSACTION_AMOUNT = 20;
 
 
 export default function PaymentMainScreen({ navigation, route }: PaymentStackScreenProps<'PaymentMain'>) {
+  const GlobalStyles = useGlobalStyles();
+
 
   const actionType = route.params;
 

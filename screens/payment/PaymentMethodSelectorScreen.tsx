@@ -6,7 +6,7 @@ import { PaymentMethodSnapshot } from '../../components/payment/PaymentMethodSna
 import { ArialText } from '../../components/StyledText';
 import { SafeAreaView, ScrollView, Text, View as StyledView } from '../../components/Themed';
 import Colors from '../../constants/Colors';
-import GlobalStyles from '../../constants/GlobalStyles';
+import { useGlobalStyles } from '../../constants/GlobalStyles';
 import { useAppDispatch, useAppSelector } from '../../hooks/storeHooks';
 import useColorScheme from '../../hooks/useColorScheme';
 import { PaymentMethod } from '../../lib/model/PaymentMethod';
@@ -29,6 +29,8 @@ export default function PaymentMethodSelectorScreen({ navigation }: PaymentStack
   };
 
   const colorScheme = useColorScheme();
+  const GlobalStyles = useGlobalStyles();
+  
   return (
     <SafeAreaView style={[styles.container]}>
       <ScrollView style={[styles.container, GlobalStyles.container]}>

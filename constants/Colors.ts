@@ -13,6 +13,7 @@ export default {
     tint: tintColorLight,
     tabIconDefault: '#ccc',
     tabIconSelected: tintColorLight,
+    background2: 'rgba(0, 0, 0, 0.05)',
   },
   dark: {
     text: '#fff',
@@ -25,5 +26,6 @@ export default {
     tint: tintColorDark,
     tabIconDefault: '#ccc',
     tabIconSelected: tintColorDark,
+    background2: 'rgba(255, 255, 255, 0.05)',
   },
 };

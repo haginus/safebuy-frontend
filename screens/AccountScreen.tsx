@@ -6,7 +6,7 @@ import { ArialText } from '../components/StyledText';
 
 import { ScrollView, Text, View as ThemedView } from '../components/Themed';
 import Colors from '../constants/Colors';
-import GlobalStyles from '../constants/GlobalStyles';
+import { useGlobalStyles } from '../constants/GlobalStyles';
 import { AuthContext } from '../context/AuthContext';
 import { useAppDispatch, useAppSelector } from '../hooks/storeHooks';
 import useColorScheme from '../hooks/useColorScheme';
@@ -26,6 +26,7 @@ export default function AccountScreen({ navigation }: RootTabScreenProps<'Accoun
   }, [user]);
 
   const colorScheme = useColorScheme();
+  const GlobalStyles = useGlobalStyles();
 
   const { signOut } = useContext(AuthContext);
   

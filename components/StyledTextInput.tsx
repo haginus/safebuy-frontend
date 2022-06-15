@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
-import { StyleSheet } from 'react-native';
-import { Text, TextInput, TextInputProps, View } from './Themed';
+import { StyleSheet, View } from 'react-native';
+import { Text, TextInput, TextInputProps } from './Themed';
 
 export interface FieldTextInputProps extends TextInputProps {
   label: string;
@@ -42,6 +42,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     paddingVertical: 16,
+    minHeight: 50,
+    textAlignVertical: 'top',
     paddingHorizontal: 12,
     width: '100%',
   },
