@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { ActionSheetIOS, Alert, StyleSheet, Switch, TouchableHighlight, TouchableOpacity } from 'react-native';
+import { ActionSheetIOS, ActivityIndicator, Alert, StyleSheet, Switch, TouchableHighlight, TouchableOpacity } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { FieldTextInput } from '../../components/StyledTextInput';
 
@@ -10,35 +10,62 @@ import Colors from '../../constants/Colors';
 import { useGlobalStyles } from '../../constants/GlobalStyles';
 import useColorScheme from '../../hooks/useColorScheme';
 import { Asset } from '../../lib/model/Asset';
-import DocumentPicker, {
-  
-} from 'react-native-document-picker'
-import { launchImageLibrary } from 'react-native-image-picker';
+import DocumentPicker, { DocumentPickerResponse } from 'react-native-document-picker'
+import * as FileSystem from 'expo-file-system';
+import { Button } from '../../components/Button';
+import { Listing, ListingCreate } from '../../lib/model/Listing';
+import { useAppDispatch, useAppSelector } from '../../hooks/storeHooks';
+import { createListing } from '../../store/marketplaceSlice';
+import { parseError } from '../../components/ErrorMessage';
 
 interface FormValue {
   title: string;
   description: string;
   price: string;
   needsPersonalization: boolean;
-
 }
 
-export default function ListingEditScreen() {
+export default function ListingEditScreen({ navigation }: { navigation: any }) {
 
-  const { control, handleSubmit, formState: { errors, isValid } } = useForm<FormValue>({
+  const { control, handleSubmit, formState: { errors, isValid: isFormValid } } = useForm<FormValue>({
     defaultValues: {
       title: '',
       description: '',
       price: '',
       needsPersonalization: true
-    }
+    },
+    mode: 'onChange',
   });
 
-  const [assets, setAssets] = useState<Asset[]>([
-    {type: 'link', link: 'https://google.ro/safety-measures/click-here-kk'}
-  ]);
+  const [assets, setAssets] = useState<Asset[]>([]);
+  const user = useAppSelector(state => state.user.currentUser);
 
-  const onAssetAdd = () =>
+  const isValid = isFormValid && assets.length > 0;
+  const [isLoading, setIsLoading] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
+  const dispatch = useAppDispatch();
+
+  const onSubmit = async (data: FormValue) => {
+    if(!isValid || isLoading) return;
+    const listing: ListingCreate = {
+      ...data,
+      price: parseFloat(data.price),
+      assets,
+      listingCategoryId: 1,
+      ownerId: user?.id as number,
+    }
+    setIsLoading(true);
+    const result = await dispatch(createListing(listing));
+    if(result.meta.requestStatus == 'rejected') {
+      setIsLoading(false);
+      parseError(result, setSubmitError);
+    } else {
+      setIsLoading(false);
+      // navigation
+    }
+  };
+
+  const onAssetAdd = () => {
     ActionSheetIOS.showActionSheetWithOptions(
       {
         options: ["Cancel", "Link", "File"],
@@ -54,40 +81,46 @@ export default function ListingEditScreen() {
         }
       }
     );
+  }
 
-    const linkAdd = () => {
-      Alert.prompt('Link', 'Enter the link', (link) => {
-        const re = /(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)/gm;
-        if(re.test(link)) {
-          setAssets([...assets, { type: 'link', link }]);
-        } else {
-          Alert.alert('Invalid link');
-        }
-      });
+  const linkAdd = () => {
+    Alert.prompt('Link', 'Enter the link', (link) => {
+      const re = /(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)/gm;
+      if(re.test(link)) {
+        setAssets([...assets, { type: 'link', link }]);
+      } else {
+        Alert.alert('Invalid link');
+      }
+    });
+  }
+
+  const fileAdd = async () => {
+    let pickedFile: DocumentPickerResponse;
+    try {
+      pickedFile = (await DocumentPicker.pick())[0];
+    } catch (err)  {
+      return;
     }
+    
+    let content = await FileSystem.readAsStringAsync(pickedFile.uri, { 
+      encoding: FileSystem.EncodingType.Base64 
+    });
+    content = `data:${pickedFile.type};base64,` + content;
+    const asset: Asset = { type: 'file', name: pickedFile.name, mimeType: pickedFile.type as string, content };
+    setAssets([...assets, asset]);
+  };
 
-    const fileAdd = async () => {
-      const result = await DocumentPicker.pick({
-        mode: 'open',
-        copyTo: 'cachesDirectory',
-        type: DocumentPicker.types.allFiles,
-      });
-      // const result = await launchImageLibrary({ mediaType: 'photo' });
-      console.log(result)
-
-    };
-
-    const onAssetClick = (asset: Asset) => {
-      ActionSheetIOS.showActionSheetWithOptions({
-        options: ["Cancel", "Remove"],
-        cancelButtonIndex: 0,
-        destructiveButtonIndex: 1,
-      }, (buttonIndex) => {
-        if (buttonIndex === 1) {
-          setAssets(assets.filter(a => a !== asset));
-        }
-      });
-    }
+  const onAssetClick = (asset: Asset) => {
+    ActionSheetIOS.showActionSheetWithOptions({
+      options: ["Cancel", "Remove"],
+      cancelButtonIndex: 0,
+      destructiveButtonIndex: 1,
+    }, (buttonIndex) => {
+      if (buttonIndex === 1) {
+        setAssets(assets.filter(a => a !== asset));
+      }
+    });
+  }
 
   const GlobalStyles = useGlobalStyles();
 
@@ -97,6 +130,7 @@ export default function ListingEditScreen() {
         <Text style={[GlobalStyles.header1]}>
           New listing
         </Text>
+        { submitError }
         <Controller
           control={control}
           name="title"
@@ -110,7 +144,6 @@ export default function ListingEditScreen() {
               onBlur={field.onBlur}
               onChangeText={field.onChange}
               value={field.value}
-              keyboardType='numeric'
             />
           )}
         />
@@ -137,16 +170,18 @@ export default function ListingEditScreen() {
           control={control}
           name="price"
           rules={{
-            min: 20
+            min: 20,
+            required: true
           }}
           render={({ field }) => (
             <FieldTextInput
               label="Price"
               placeholder='At least 20 RON'
-              error={errors.title ? 'Price is at least 20 RON.' : null }
+              error={errors.price ? 'Price must be at least 20 RON.' : null }
               onBlur={field.onBlur}
               onChangeText={field.onChange}
               value={field.value}
+              keyboardType='numeric'
             />
           )}
         />
@@ -157,7 +192,6 @@ export default function ListingEditScreen() {
               control={control}
               name="needsPersonalization"
               rules={{
-                maxLength: 1024
               }}
               render={({ field }) => (
                 <Switch
@@ -172,7 +206,7 @@ export default function ListingEditScreen() {
           </View>
           <View style={[GlobalStyles.horizSect]}>
             <Text>Category</Text>
-            <Text>categ</Text>
+            <Text>Tickets</Text>
           </View>
         </View>
         
@@ -186,10 +220,22 @@ export default function ListingEditScreen() {
           {assets.map((asset, index) => (
             <AssetItem asset={asset} key={index} onPress={() => onAssetClick(asset)} />
           ))}
+          {assets.length === 0 && (
+            <View style={[GlobalStyles.horizSect, { justifyContent: 'center' }]}>
+              <Text>Please provide at least one asset.</Text>
+            </View>
+          )}
         </View>
-        <Text style={[GlobalStyles.explanatory, { marginTop: -8 }]}>
+        <Text style={[GlobalStyles.explanatory, { marginTop: -8, marginBottom: 24 }]}>
           Assets are only seen after someone has purchased your listing.
         </Text>
+        <Button 
+          title={isLoading ? '' : 'Publish'} 
+          theme='solid_rounded' 
+          icon={() => isLoading && <ActivityIndicator color='#fff'/>}
+          onPress={handleSubmit(onSubmit)}
+          disabled={!isValid || isLoading}
+        ></Button>
       </SafeAreaView>
     </ScrollView>
   );
@@ -198,6 +244,7 @@ export default function ListingEditScreen() {
 function AssetItem({ asset, onPress }: { asset: Asset, onPress: () => any }) {
 
   const assetTitle = asset.type == 'link' ? asset.link : asset.name; 
+  const icon = asset.type == 'link' ? 'link' : 'description';
 
   const GlobalStyles = useGlobalStyles();
   const colorScheme = useColorScheme();
@@ -223,7 +270,7 @@ function AssetItem({ asset, onPress }: { asset: Asset, onPress: () => any }) {
     <TouchableHighlight style={{ borderRadius: 8 }} onPress={onPress}>
       <View style={[GlobalStyles.horizSect, styles.container]}>
         <View style={[styles.circle, { backgroundColor: Colors[colorScheme].background2 }]}>
-          <MaterialIcons name="link" size={24} color={Colors[colorScheme].tint} />
+          <MaterialIcons name={icon} size={24} color={Colors[colorScheme].tint} />
         </View>
         <Text numberOfLines={1} style={{ flex: 1 }}>{assetTitle}</Text>
       </View>

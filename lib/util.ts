@@ -1,10 +1,10 @@
-import { Service, USER_API_URL, PAYMENT_API_URL } from "./constants";
+import { Service, USER_API_URL, PAYMENT_API_URL, MARKETPLACE_API_URL } from "./constants";
 import * as SecureStore from 'expo-secure-store';
 
 export async function apiCall<R>(service: Service, url: string, method: string, data?: any) {
   const urls = {
     [Service.USER]: USER_API_URL,
-    [Service.MARKETPLACE]: 'null',
+    [Service.MARKETPLACE]: MARKETPLACE_API_URL,
     [Service.PAYMENT]: PAYMENT_API_URL,
   }
   
