@@ -40,6 +40,11 @@ const linking: LinkingOptions<RootStackParamList> = {
         },
       },
       Modal: 'modal',
+      Payment: {
+        screens: {
+          PaymentMain: 'payment/:action/:listingId?'
+        }
+      },
       NotFound: '*',
     },
   },

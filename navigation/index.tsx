@@ -23,6 +23,7 @@ import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../typ
 import LinkingConfiguration from './LinkingConfiguration';
 import { ListingTabNavigator } from './ListingTabNavigator';
 import AccountScreen from '../screens/AccountScreen';
+import { PaymentNavigator } from './PaymentNavigator';
 
 export default function Navigation({ colorScheme, authState }: { colorScheme: ColorSchemeName, authState: AuthState }) {
   return (
@@ -51,6 +52,7 @@ function RootNavigator({ authState }: { authState: AuthState }) {
         <Stack.Screen name="Auth" component={AuthNavigator} options={{ headerShown: false, animationTypeForReplace: authState.isSignout ? 'pop' : 'push' }} />
       ) }
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
+      <Stack.Screen name="Payment" component={PaymentNavigator} options={{ headerShown: false, }} />
       <Stack.Group screenOptions={{ presentation: 'modal' }}>
         <Stack.Screen name="Modal" component={ModalScreen} options={{ title: 'What is a personalized ticket?' }} />
       </Stack.Group>

@@ -17,6 +17,7 @@ export type RootStackParamList = {
   Auth: NavigatorScreenParams<AuthStackParamList> | undefined;
   Root: NavigatorScreenParams<RootTabParamList> | undefined;
   Modal: undefined;
+  Payment: NavigatorScreenParams<PaymentStackParamList>;
   NotFound: undefined;
 };
 
@@ -30,6 +31,11 @@ export type AuthStackScreenProps<Screen extends keyof AuthStackParamList> = Nati
   Screen
 >;
 
+export type PaymentStackScreenProps<Screen extends keyof PaymentStackParamList> = NativeStackScreenProps<
+  PaymentStackParamList,
+  Screen
+>;
+
 export type RootTabParamList = {
   ListingTab: NavigatorScreenParams<ListingStackParamList | undefined>;
   SellTab: undefined;
@@ -39,6 +45,11 @@ export type RootTabParamList = {
 export type AuthStackParamList = {
   SignIn: undefined;
   SignUp: undefined;
+};
+
+export type PaymentStackParamList = {
+  PaymentMain: { action: 'top-up' } | { action: 'withdraw' } | { action: 'buy-listing', listingId: number };
+  PaymentMethodSelector: undefined;
 };
 
 export type RootTabScreenProps<Screen extends keyof RootTabParamList> = CompositeScreenProps<

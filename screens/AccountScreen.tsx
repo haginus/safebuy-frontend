@@ -13,9 +13,9 @@ import useColorScheme from '../hooks/useColorScheme';
 import { User } from '../lib/model/User';
 import { formatPrice } from '../lib/util';
 import { fetchAccount } from '../store/paymentSlice';
-import { fetchCurrentUser } from '../store/userSlice';
+import { RootTabScreenProps } from '../types';
 
-export default function AccountScreen() {
+export default function AccountScreen({ navigation }: RootTabScreenProps<'AccountTab'>) {
   const user = useAppSelector(state => state.user.currentUser) as User;
   const balance = useAppSelector(state => state.payment.balance);
   const dispatch = useAppDispatch();
@@ -38,16 +38,18 @@ export default function AccountScreen() {
         <ArialText style={styles.username}>{user.firstName} {user.lastName}</ArialText>
       </View>
       <ThemedView style={[GlobalStyles.section]}>
-        <ArialText style={styles.balance}>{ formatPrice(balance) }</ArialText>
+        <ArialText style={styles.balance}>{ formatPrice(balance, 'RON') }</ArialText>
         <View style={[styles.balanceSectionButtons]}>
-          <Button icon='add' title='Top up' style={styles.balanceSectionButton} onPress={() => {}}/>
-          <Button icon='remove' title='Withdraw'/>
+          <Button icon='add' title='Top up' style={styles.balanceSectionButton} 
+            onPress={() => navigation.push('Payment', { screen: 'PaymentMain', params: { action: 'top-up' } })}/>
+          <Button icon='remove' title='Withdraw'
+            onPress={() => navigation.push('Payment', { screen: 'PaymentMain', params: { action: 'withdraw' } })}/>
         </View>
       </ThemedView>
 
       <TouchableHighlight style={styles.sectionHighlight} onPress={signOut}>
         <ThemedView style={[GlobalStyles.section, { flexDirection: 'row', alignItems: 'center', marginHorizontal: 0 }]}>
-          <MaterialIcons name='person' size={24} color={Colors[colorScheme].text}></MaterialIcons>
+          <MaterialIcons name='logout' size={24} color={Colors[colorScheme].text}></MaterialIcons>
           <Text style={{ marginLeft: 12 }}>Sign out</Text>
         </ThemedView>
       </TouchableHighlight>

@@ -15,28 +15,33 @@ export async function apiCall<R>(service: Service, url: string, method: string, 
   if(token) {
     headers.append("Authorization", `Bearer ${token}`);
   }
-  try {
-    const result = await fetch(resultUrl, {
-      method,
-      headers,
-      body: JSON.stringify(data)
-    });
-    if(!result.ok) {
-      throw (await result.json()); 
-    }
-    return result.json() as Promise<R>;
-  } catch(e) {
-    console.log(e);
-    throw { message: "Something went wrong", code: "Unknown" };
-  }
+  return new Promise<R>((resolve, reject) => {
+    fetch(resultUrl, { method, headers, body: JSON.stringify(data) })
+      .then(async (result) => { 
+        if(!result.ok) {
+          reject(await result.json());
+        }
+        resolve(await result.json());
+      })
+      .catch(() => reject({ message: "Something went wrong", code: "Unknown" }));
+  });
 }
 
-export function formatPrice(price: number) {
+export function formatPrice(price: number, currency: string = 'lei') {
   const formatter = new Intl.NumberFormat('ro-RO', {
     style: 'currency',
-    currency: 'lei',
+    currency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 2
   });
-  return formatter.format(price).toLowerCase();
+  const formatted = formatter.format(price);
+  return currency.toLowerCase() == currency ? formatted.toLowerCase() : formatted;
+}
+
+export function wait(timeout: number) {
+  return new Promise(resolve => setTimeout(resolve, timeout));
+}
+
+export function formatCardNumber(cardNumber: string) {
+  return '••• ' + cardNumber.substring(cardNumber.length - 4);
 }
