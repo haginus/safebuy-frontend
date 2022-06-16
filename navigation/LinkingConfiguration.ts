@@ -21,10 +21,14 @@ const linking: LinkingOptions<RootStackParamList> = {
       },
       Root: {
         screens: {
-          ListingTab: {
+          SearchListingsTab: {
             screens: {
-              ListingTabHome: 'listings',
-              ListingDetails: 'listings/details/:id',
+              SearchListingsTab: '/search',
+            },
+          },
+          MyListingsTab: {
+            screens: {
+              SearchListingsTab: '/listings',
             },
           },
           SellTab: {
@@ -43,6 +47,11 @@ const linking: LinkingOptions<RootStackParamList> = {
       Payment: {
         screens: {
           PaymentMain: 'payment/:action/:listingId?'
+        }
+      },
+      Listing: {
+        screens: {
+          ListingDetails: 'listings/details/:id',
         }
       },
       NotFound: '*',

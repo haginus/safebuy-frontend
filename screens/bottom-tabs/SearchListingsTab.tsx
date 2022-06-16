@@ -8,12 +8,10 @@ import { SearchBar } from '../../components/SearchBar';
 import { Text } from '../../components/Themed';
 import { useGlobalStyles } from '../../constants/GlobalStyles';
 import { useAppDispatch, useAppSelector } from '../../hooks/storeHooks';
-import { Listing } from '../../lib/model/Listing';
-import { wait } from '../../lib/util';
 import { searchListings } from '../../store/marketplaceSlice';
-import { ListingStackScreenProps } from '../../types';
+import { RootTabScreenProps } from '../../types';
 
-export default function ListingTabHome({ navigation }: ListingStackScreenProps<'ListingTabHome'>) {
+export default function SearchListingsTab({ navigation }: RootTabScreenProps<'SearchListingsTab'>) {
   const [refreshing, setRefreshing] = useState(false);
 
   const searchListingsResult = useAppSelector(state => state.marketplace.searchListingsResult);
@@ -45,19 +43,24 @@ export default function ListingTabHome({ navigation }: ListingStackScreenProps<'
 
   const GlobalStyles = useGlobalStyles();
   return (
-    <ScrollView style={styles.scrollView} refreshControl={
+    <ScrollView style={GlobalStyles.container} refreshControl={
         <RefreshControl
           refreshing={refreshing}
           onRefresh={onSearch}
         />
       }
     >
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView>
         <Text style={GlobalStyles.header1}>Listings</Text>
         <SearchBar />
         { error && <OfflineComponent />}
-        { searchListingsResult && searchListingsResult.map((listing, index) => 
-          ( <ListingCard listing={listing} key={index} onPress={() => navigation.push('ListingDetails', { id: listing.id }) } />) ) }
+        { searchListingsResult && searchListingsResult.map((listing, index) => ( 
+          <ListingCard 
+            listing={listing} 
+            key={index} 
+            onPress={() => navigation.push('Listing', { screen: 'ListingDetails', params: { id: 1 } }) } 
+          />) 
+        ) }
       </SafeAreaView>
     
     </ScrollView>
@@ -65,19 +68,4 @@ export default function ListingTabHome({ navigation }: ListingStackScreenProps<'
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollView: {
-    paddingVertical: 16,
-    paddingHorizontal: 12,
-    paddingBottom: 100
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  searchBar: {
-    width: '100%',
-  },
 });

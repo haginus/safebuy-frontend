@@ -15,16 +15,17 @@ import useColorScheme from '../hooks/useColorScheme';
 import { AuthState } from '../lib/model/AuthState';
 import ModalScreen from '../screens/ModalScreen';
 import NotFoundScreen from '../screens/NotFoundScreen';
-import TabTwoScreen from '../screens/TabTwoScreen';
+import MyListingsScreen from '../screens/MyListingsScreen';
 import SplashScreen from '../screens/SplashScreen';
 import SignInScreen from '../screens/auth/SignInScreen';
 import SignUpScreen from '../screens/auth/SignUpScreen';
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
-import { ListingTabNavigator } from './ListingTabNavigator';
+import { ListingStackNavigator } from './ListingTabNavigator';
 import AccountScreen from '../screens/AccountScreen';
 import { PaymentNavigator } from './PaymentNavigator';
 import ListingEditScreen from '../screens/listing-edit/ListingEditScreen';
+import SearchListingsTab from '../screens/bottom-tabs/SearchListingsTab';
 
 export default function Navigation({ colorScheme, authState }: { colorScheme: ColorSchemeName, authState: AuthState }) {
   return (
@@ -54,6 +55,7 @@ function RootNavigator({ authState }: { authState: AuthState }) {
       ) }
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
       <Stack.Screen name="Payment" component={PaymentNavigator} options={{ headerShown: false, }} />
+      <Stack.Screen name="Listing" component={ListingStackNavigator} options={{ headerShown: false, }} />
       <Stack.Group screenOptions={{ presentation: 'modal' }}>
         <Stack.Screen name="Modal" component={ModalScreen} options={{ title: 'What is a personalized ticket?' }} />
       </Stack.Group>
@@ -82,37 +84,24 @@ function BottomTabNavigator() {
 
   return (
     <BottomTab.Navigator
-      initialRouteName="ListingTab"
+      initialRouteName="MyListingsTab"
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme].tint,
       }}>
       <BottomTab.Screen
-        name="ListingTab"
-        component={ListingTabNavigator}
-        options={({ navigation }: RootTabScreenProps<'ListingTab'>) => ({
+        name="SearchListingsTab"
+        component={SearchListingsTab}
+        options={{
           title: 'Search',
           headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon  name="shopping-search" color={color} />,
-          headerRight: () => (
-            <Pressable
-              onPress={() => navigation.navigate('Modal')}
-              style={({ pressed }) => ({
-                opacity: pressed ? 0.5 : 1,
-              })}>
-              <FontAwesome
-                name="info-circle"
-                size={25}
-                color={Colors[colorScheme].text}
-                style={{ marginRight: 15 }}
-              />
-            </Pressable>
-          ),
-        })}
+        }}
       />
        <BottomTab.Screen
-        name="YourListingsTab"
-        component={TabTwoScreen}
+        name="MyListingsTab"
+        component={MyListingsScreen}
         options={{
+          headerShown: false,
           title: 'Your listings',
           tabBarIcon: ({ color }) => <TabBarIcon name="ticket" color={color} />,
         }}

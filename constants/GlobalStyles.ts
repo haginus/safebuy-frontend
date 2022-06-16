@@ -7,7 +7,7 @@ export const useGlobalStyles = () => {
   const Colors = _Colors[colorScheme];
   return StyleSheet.create({
     container: {
-      padding: 24
+      padding: 16
     },
     section: {
       padding: 16,

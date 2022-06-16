@@ -4,16 +4,13 @@ import { Pressable, Share } from "react-native";
 import Colors from "../constants/Colors";
 import useColorScheme from "../hooks/useColorScheme";
 import ListingDetailsScreen from "../screens/listing-tab/ListingDetailsScreen";
-import ListingTabHome from "../screens/listing-tab/ListingTabHome";
-import { ListingStackScreenProps, RootTabScreenProps } from "../types";
 
 const Stack = createNativeStackNavigator();
 
-export function ListingTabNavigator() {
+export function ListingStackNavigator() {
   const colorScheme = useColorScheme();
   return (
     <Stack.Navigator screenOptions={{ headerShown: true }}>
-      <Stack.Screen name="ListingTabHome" component={ListingTabHome} options={{ headerShown: false }} />
       <Stack.Screen name="ListingDetails" component={ListingDetailsScreen} options={({ navigation, route }) => ({ 
         headerBackTitle: '',
         headerTransparent: true,
@@ -42,7 +39,7 @@ function shareListing(listingId: number) {
     {
       title: 'Share Listing',
       message: `https://www.example.com/listing/${listingId}`,
-      url: `https://www.example.com/listing/${listingId}`,
+      url: `com.haginus.safebuyfrontend://listing/${listingId}`,
     },
     {
       dialogTitle: 'Share Listing',

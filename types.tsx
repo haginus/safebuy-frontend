@@ -14,11 +14,13 @@ declare global {
 }
 
 export type RootStackParamList = {
+  Splash: undefined;
   Auth: NavigatorScreenParams<AuthStackParamList> | undefined;
   Root: NavigatorScreenParams<RootTabParamList> | undefined;
   Modal: undefined;
   Payment: NavigatorScreenParams<PaymentStackParamList>;
   NotFound: undefined;
+  Listing: NavigatorScreenParams<ListingStackParamList>;
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> = NativeStackScreenProps<
@@ -37,7 +39,8 @@ export type PaymentStackScreenProps<Screen extends keyof PaymentStackParamList> 
 >;
 
 export type RootTabParamList = {
-  ListingTab: NavigatorScreenParams<ListingStackParamList | undefined>;
+  SearchListingsTab: undefined;
+  MyListingsTab: undefined;
   SellTab: undefined;
   AccountTab: undefined;
 };
@@ -58,14 +61,10 @@ export type RootTabScreenProps<Screen extends keyof RootTabParamList> = Composit
 >;
 
 export type ListingStackParamList = {
-  ListingTabHome: undefined;
   ListingDetails: { id: number };
 };
 
 export type ListingStackScreenProps<Screen extends keyof ListingStackParamList> = CompositeScreenProps<
   NativeStackScreenProps<ListingStackParamList, Screen>,
-  CompositeScreenProps<
-    RootTabScreenProps<'ListingTab'>,
-    NativeStackScreenProps<RootStackParamList>
-  >
+  NativeStackScreenProps<RootStackParamList>
 >;
