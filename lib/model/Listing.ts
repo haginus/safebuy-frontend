@@ -1,5 +1,6 @@
 import { Asset } from "./Asset";
 import { ListingCategory } from "./ListingCategory";
+import { ListingOffer } from "./ListingOffer";
 import { User } from "./User";
 
 export interface ListingBase {
@@ -13,11 +14,12 @@ export interface ListingBase {
 export interface Listing extends ListingBase {
   id: number;
   listingCategory: ListingCategory;
-  owner: User;
+  owner?: User;
 }
 
 export interface ListingDetails extends Listing {
   assets: Asset[];
+  listingOffer: ListingOffer;
 }
 
 export interface ListingCreate extends ListingBase {

@@ -1,17 +1,24 @@
+import { useMemo } from "react";
 import { Image, StyleSheet, TouchableHighlight, View } from "react-native";
 import Colors from "../constants/Colors";
+import { useAppSelector } from "../hooks/storeHooks";
 import useColorScheme from "../hooks/useColorScheme";
-import { Listing } from "../lib/model/Listing";
+import { getListingMeta } from "../lib/listing-meta";
+import { Listing, ListingDetails } from "../lib/model/Listing";
 import { formatPrice } from "../lib/util";
 import { Text, View as StyledView } from "./Themed";
 
 export interface ListingCardProps {
-  listing: Listing;
-  onPress: () => void;
+  listing: Listing | ListingDetails;
+  onPress?: () => void;
 }
 
 export function ListingCard({ listing, onPress }: ListingCardProps) {
   const colorScheme = useColorScheme();
+
+  const userId = useAppSelector(state => state.user.currentUser?.id);
+  const listingMeta = useMemo(() => getListingMeta(listing as ListingDetails, userId), [listing, userId]);
+  const isOwner = listingMeta && listingMeta.perspective == 'seller';
   
   return (
     <TouchableHighlight onPress={ onPress } style={ styles.highlight}>
@@ -26,15 +33,17 @@ export function ListingCard({ listing, onPress }: ListingCardProps) {
             <Text style={styles.price}>{formatPrice(listing.price)}</Text>
           </View>
           <View>
-            <Text style={ { color: Colors[colorScheme].muted }}>
-              {listing.owner.firstName} {listing.owner.lastName}
-            </Text>
+            { listingMeta && <Text style={styles.shortStatus}>{listingMeta.shortStatus}</Text>}
+            { isOwner ? <Text>Your listing</Text> : (
+              <Text style={ { color: Colors[colorScheme].muted }}>
+                {listing.owner?.firstName} {listing.owner?.lastName}
+              </Text> 
+            )}
           </View>
         </View>
       </StyledView>
     </TouchableHighlight>
   );
-
 }
 
 const styles = StyleSheet.create({
@@ -73,6 +82,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginTop: 4,
+  },
+  shortStatus: {
+    marginBottom: 4,
   }
 });
 
