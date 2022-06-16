@@ -2,6 +2,7 @@ import { Image, StyleSheet, TouchableHighlight, View } from "react-native";
 import Colors from "../constants/Colors";
 import useColorScheme from "../hooks/useColorScheme";
 import { Listing } from "../lib/model/Listing";
+import { formatPrice } from "../lib/util";
 import { Text, View as StyledView } from "./Themed";
 
 export interface ListingCardProps {
@@ -22,7 +23,7 @@ export function ListingCard({ listing, onPress }: ListingCardProps) {
         <View style={styles.listingInfoContainer}>
           <View>
             <Text style={styles.title}>{listing.title}</Text>
-            <Text style={styles.price}>{listing.price} lei</Text>
+            <Text style={styles.price}>{formatPrice(listing.price)}</Text>
           </View>
           <View>
             <Text style={ { color: Colors[colorScheme].muted }}>
@@ -39,6 +40,7 @@ export function ListingCard({ listing, onPress }: ListingCardProps) {
 const styles = StyleSheet.create({
   highlight: {
     marginBottom: 16,
+    borderRadius: 10,
   },
   listingContainer: {
     display: "flex",
@@ -48,11 +50,13 @@ const styles = StyleSheet.create({
     shadowColor: "#222",
     shadowOpacity: 0.6,
     height: 140,
-    borderRadius: 5
+    borderRadius: 10
   },
   coverImage: {
     height: 140,
     width: 140,
+    borderTopLeftRadius: 10,
+    borderBottomLeftRadius: 10,
   },
   listingInfoContainer: {
     flex: 1,

@@ -5,6 +5,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ListingCard } from '../../components/ListingCard';
 import { OfflineComponent } from '../../components/OfflineComponent';
 import { SearchBar } from '../../components/SearchBar';
+import { Text } from '../../components/Themed';
+import { useGlobalStyles } from '../../constants/GlobalStyles';
 import { useAppDispatch, useAppSelector } from '../../hooks/storeHooks';
 import { Listing } from '../../lib/model/Listing';
 import { wait } from '../../lib/util';
@@ -21,38 +23,44 @@ export default function ListingTabHome({ navigation }: ListingStackScreenProps<'
 
   const [error, setError] = useState<boolean>(false);
 
-  const onRefresh = useCallback(() => {
-    onSearch();
-  }, []);
-
   const onSearch = async () => {
     setRefreshing(true);
     const result = await dispatch(searchListings());
     setRefreshing(false);
     if(result.meta.requestStatus == 'rejected') {
       setError(true);
+    } else {
+      setError(false);
     }
   };
 
   useEffect(() => {
     onSearch();
+  }, [searchString, searchCategory]);
+
+  useEffect(() => {
+    onSearch();
   }, []);
 
+
+  const GlobalStyles = useGlobalStyles();
   return (
-    <SafeAreaView style={styles.container} edges={['right', 'left']}>
-      <SearchBar />
-      <ScrollView style={styles.scrollView} refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-          />
-        }
-      >
+    <ScrollView style={styles.scrollView} refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onSearch}
+        />
+      }
+    >
+      <SafeAreaView style={styles.container}>
+        <Text style={GlobalStyles.header1}>Listings</Text>
+        <SearchBar />
         { error && <OfflineComponent />}
         { searchListingsResult && searchListingsResult.map((listing, index) => 
           ( <ListingCard listing={listing} key={index} onPress={() => navigation.push('ListingDetails', { id: listing.id }) } />) ) }
-      </ScrollView>
-    </SafeAreaView>
+      </SafeAreaView>
+    
+    </ScrollView>
   );
 }
 
@@ -61,7 +69,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollView: {
-    paddingVertical: 10,
+    paddingVertical: 16,
     paddingHorizontal: 12,
     paddingBottom: 100
   },

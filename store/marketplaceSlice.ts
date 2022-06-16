@@ -34,8 +34,12 @@ export const searchListings = createAsyncThunk<Listing[]>('marketplace/searchLis
   const state = getState();
   const search = state.marketplace.searchString;
   const categoryId = state.marketplace.searchSelectedCategory?.id;
-  const url = formatUrlParams("/listings", { search, categoryId });
+  const url = formatUrlParams("/listings", { search, categoryId, isAvailable: true });
   return apiCall<Listing[]>(Service.MARKETPLACE, url, "GET");
+});
+
+export const fetchListingCategories = createAsyncThunk<ListingCategory[]>('marketplace/fetchListingCategories', async (_, { getState }) => {
+  return apiCall<ListingCategory[]>(Service.MARKETPLACE, `/categories/`, "GET");;
 });
 
 export const userSlice = createSlice({
@@ -45,6 +49,12 @@ export const userSlice = createSlice({
     updateListingIndex: (state, action: PayloadAction<Listing>) => {
       _updateListingIndex(state, [action.payload]);
     },
+    setSelectedCategory: (state, action: PayloadAction<ListingCategory | null>) => {
+      state.searchSelectedCategory = action.payload;
+    },
+    setSearchString: (state, action: PayloadAction<string>) => {
+      state.searchString = action.payload;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -58,6 +68,9 @@ export const userSlice = createSlice({
       .addCase(searchListings.fulfilled, (state, action) => {
         state.searchListingsResult = action.payload;
       })
+      .addCase(fetchListingCategories.fulfilled, (state, action) => {
+        state.listingCategories = action.payload;
+      })
   }
 });
 
@@ -68,6 +81,6 @@ function _updateListingIndex(state: MarketplaceState, listings: Listing[]) {
 }
 
 
-export const { updateListingIndex } = userSlice.actions;
+export const { updateListingIndex, setSelectedCategory, setSearchString } = userSlice.actions;
 
 export default userSlice.reducer;

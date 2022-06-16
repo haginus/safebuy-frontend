@@ -13,7 +13,7 @@ export function ListingTabNavigator() {
   const colorScheme = useColorScheme();
   return (
     <Stack.Navigator screenOptions={{ headerShown: true }}>
-      <Stack.Screen name="ListingTabHome" component={ListingTabHome} options={{ title: 'Listings'}} />
+      <Stack.Screen name="ListingTabHome" component={ListingTabHome} options={{ headerShown: false }} />
       <Stack.Screen name="ListingDetails" component={ListingDetailsScreen} options={({ navigation, route }) => ({ 
         headerBackTitle: '',
         headerTransparent: true,

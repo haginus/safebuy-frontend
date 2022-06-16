@@ -1,27 +1,28 @@
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet } from "react-native";
 import Colors from "../constants/Colors";
 import useColorScheme from "../hooks/useColorScheme";
-import { View } from "./Themed";
+import { View, ViewProps } from "./Themed";
 
-interface CircleIconProps {
+type CircleIconProps = {
   icon: string;
   size?: number;
   active?: boolean;
-}
+} & ViewProps;
 
-export function CircleIcon({ icon, size, active }: CircleIconProps) {
-  const _size = size || 25;
+export function CircleIcon({ icon, size, active, ...viewProps }: CircleIconProps) {
+  const _size = size || 40;
   const colorScheme = useColorScheme();
   return (
     <View 
-      style={[styles.container, { width: _size * 1.6, height: _size * 1.6 }]}
-      lightColor={active ? '#e8eaf6' : '#eee'}
+      style={[styles.container, { width: _size, height: _size }]}
+      lightColor={active ? '#e8eaf6' : '#ddd'}
       darkColor={active ? '#222' : '#222'}
+      {...viewProps}
     >
-      <FontAwesome 
+      <MaterialIcons 
         name={icon as any} 
-        size={_size} 
+        size={_size / 1.6} 
         color={active ? Colors[colorScheme].tint : Colors[colorScheme].muted } 
       />
     </View>

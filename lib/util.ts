@@ -1,5 +1,6 @@
 import { Service, USER_API_URL, PAYMENT_API_URL, MARKETPLACE_API_URL } from "./constants";
 import * as SecureStore from 'expo-secure-store';
+import { Animated } from "react-native";
 
 export async function apiCall<R>(service: Service, url: string, method: string, data?: any) {
   const urls = {
@@ -49,11 +50,51 @@ export function formatCardNumber(cardNumber: string) {
 export function formatUrlParams(url: string, params: { [key: string]: any }) {
   const urlParts = url.split('?');
   const urlPath = urlParts[0];
-  const urlParams = urlParts[1] ? new URLSearchParams(urlParts[1]) : new URLSearchParams();
+  const urlParams = urlParts[1] ? urlParts[1].split('&') : [];
   Object.keys(params).forEach(key => {
-    if(params[key] != null) {
-      urlParams.set(key, params[key])
+    if(params[key] != null && params[key] != '') {
+      urlParams.push(key + '=' + params[key])
     }
   });
-  return `${urlPath}?${urlParams.toString()}`;
+  return `${urlPath}?${urlParams.join('&')}`;
+}
+
+
+
+type AnimationABProperties = { [key: string]: { from: number, to: number } };
+type AnimationABOptions = { duration: number, easing?: string };
+
+export class AnimationAB {
+
+  public values: { [key: string]: Animated.Value }
+
+  constructor(private properties: AnimationABProperties, private options: AnimationABOptions) {
+    this.values = Object.keys(properties).reduce((acc, key) => {
+      acc[key] = new Animated.Value(properties[key].from);
+      return acc;
+    }, {} as any);
+  }
+
+  toA() {
+    this._generateAnim('from').start();
+  }
+
+  toB() {
+    this._generateAnim('to').start();
+  }
+
+  private _generateAnim(value: 'from' | 'to') {
+    const keys = Object.keys(this.properties);
+    const timingArr = keys.map(key => {
+      const property = this.properties[key];
+      const { duration } = this.options;
+      const toValue = property[value];
+      return Animated.timing(this.values[key], {
+        toValue,
+        duration,
+        useNativeDriver: false
+      });
+    });
+    return Animated.parallel(timingArr);
+  }
 }
