@@ -1,6 +1,7 @@
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Pressable, Share } from "react-native";
+import { Pressable, Share, TouchableOpacity } from "react-native";
+import { Text } from "../components/Themed";
 import Colors from "../constants/Colors";
 import useColorScheme from "../hooks/useColorScheme";
 import ListingDetailsScreen from "../screens/listing-tab/ListingDetailsScreen";
@@ -10,25 +11,24 @@ const Stack = createNativeStackNavigator();
 export function ListingStackNavigator() {
   const colorScheme = useColorScheme();
   return (
-    <Stack.Navigator screenOptions={{ headerShown: true }}>
+    <Stack.Navigator>
       <Stack.Screen name="ListingDetails" component={ListingDetailsScreen} options={({ navigation, route }) => ({ 
-        headerBackTitle: '',
         headerTransparent: true,
         title: '',
-        headerRight: () => (
-          <Pressable
-            onPress={() => shareListing((route as any).params.id)}
-            style={({ pressed }) => ({
-              opacity: pressed ? 0.5 : 1,
-            })}>
-            <FontAwesome
-              name="share-alt"
-              size={25}
-              color={Colors[colorScheme].text}
-            />
+        headerLeft: () => (
+          <Pressable onPress={() => navigation.goBack() }>
+            <MaterialIcons name="arrow-back" size={24}></MaterialIcons>
           </Pressable>
         ),
-        
+        headerRight: () => (
+          <TouchableOpacity onPress={() => shareListing((route as any).params.id)}>
+            <MaterialIcons
+              name="share"
+              size={24}
+              color={Colors[colorScheme].text}
+            />
+          </TouchableOpacity>
+        ),
       })} />
     </Stack.Navigator>
   );
@@ -37,9 +37,8 @@ export function ListingStackNavigator() {
 function shareListing(listingId: number) {
   Share.share(
     {
-      title: 'Share Listing',
-      message: `https://www.example.com/listing/${listingId}`,
-      url: `com.haginus.safebuyfrontend://listing/${listingId}`,
+      message: `Check out this listing!`,
+      url: `com.haginus.safebuyfrontend://listings/${listingId}`,
     },
     {
       dialogTitle: 'Share Listing',

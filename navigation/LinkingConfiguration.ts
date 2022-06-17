@@ -51,7 +51,7 @@ const linking: LinkingOptions<RootStackParamList> = {
       },
       Listing: {
         screens: {
-          ListingDetails: 'listings/details/:id',
+          ListingDetails: 'listings/:id',
         }
       },
       NotFound: '*',

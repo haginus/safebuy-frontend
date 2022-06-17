@@ -75,12 +75,17 @@ export class AnimationAB {
     }, {} as any);
   }
 
-  toA() {
-    this._generateAnim('from').start();
+  toA(callback?: Animated.EndCallback | undefined) {
+    this._generateAnim('from').start(callback);
   }
 
-  toB() {
-    this._generateAnim('to').start();
+  toB(callback?: Animated.EndCallback | undefined) {
+    this._generateAnim('to').start(callback);
+  }
+  
+  alternate(until?: () => boolean) {
+    const _until = (until || (() => true));
+    _until() && this.toA(() => _until() && this.toB(() => this.alternate(until)));
   }
 
   private _generateAnim(value: 'from' | 'to') {

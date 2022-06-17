@@ -105,7 +105,7 @@ export function SearchBar() {
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    marginBottom: 12,
+    marginBottom: 16,
     borderRadius: 8,
   },
   firstRowContainer: {

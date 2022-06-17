@@ -21,7 +21,7 @@ import SignInScreen from '../screens/auth/SignInScreen';
 import SignUpScreen from '../screens/auth/SignUpScreen';
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
-import { ListingStackNavigator } from './ListingTabNavigator';
+import { ListingStackNavigator } from './ListingStackNavigator';
 import AccountScreen from '../screens/AccountScreen';
 import { PaymentNavigator } from './PaymentNavigator';
 import ListingEditScreen from '../screens/listing-edit/ListingEditScreen';

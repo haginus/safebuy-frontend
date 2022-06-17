@@ -7,8 +7,9 @@ import { ScrollView, Text, View } from '../components/Themed';
 import { useGlobalStyles } from '../constants/GlobalStyles';
 import { useAppDispatch, useAppSelector } from '../hooks/storeHooks';
 import { fetchMyListings } from '../store/marketplaceSlice';
+import { RootTabScreenProps } from '../types';
 
-export default function MyListingsScreen() {
+export default function MyListingsScreen({ navigation }: RootTabScreenProps<'MyListingsTab'>) {
 
   const myListings = useAppSelector(state => state.marketplace.myListings);
   const dispatch = useAppDispatch();
@@ -37,7 +38,10 @@ export default function MyListingsScreen() {
       <SafeAreaView>
         <Text style={[GlobalStyles.header1]}>My Listings</Text>
         {myListings.map((listing, index) => (
-          <ListingCard listing={listing} key={index}/>
+          <ListingCard 
+            listing={listing} 
+            key={index} 
+            onPress={() => navigation.push('Listing', { screen: 'ListingDetails', params: { id: listing.id } })}/>
         ))}
       </SafeAreaView>
     </ScrollView>

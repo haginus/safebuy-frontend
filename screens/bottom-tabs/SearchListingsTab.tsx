@@ -51,14 +51,14 @@ export default function SearchListingsTab({ navigation }: RootTabScreenProps<'Se
       }
     >
       <SafeAreaView>
-        <Text style={GlobalStyles.header1}>Listings</Text>
+        <Text style={GlobalStyles.header1}>Search listings</Text>
         <SearchBar />
         { error && <OfflineComponent />}
         { searchListingsResult && searchListingsResult.map((listing, index) => ( 
           <ListingCard 
             listing={listing} 
             key={index} 
-            onPress={() => navigation.push('Listing', { screen: 'ListingDetails', params: { id: 1 } }) } 
+            onPress={() => navigation.push('Listing', { screen: 'ListingDetails', params: { id: listing.id } }) } 
           />) 
         ) }
       </SafeAreaView>

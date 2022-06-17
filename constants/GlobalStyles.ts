@@ -9,6 +9,9 @@ export const useGlobalStyles = () => {
     container: {
       padding: 16
     },
+    flexRow: {
+      flexDirection: 'row'
+    },
     section: {
       padding: 16,
       marginHorizontal: 12,
