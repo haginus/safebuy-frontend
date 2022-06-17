@@ -17,6 +17,7 @@ import { Listing, ListingCreate } from '../../lib/model/Listing';
 import { useAppDispatch, useAppSelector } from '../../hooks/storeHooks';
 import { createListing } from '../../store/marketplaceSlice';
 import { parseError } from '../../components/ErrorMessage';
+import AssetSection from '../../components/AssetSection';
 
 interface FormValue {
   title: string;
@@ -210,22 +211,7 @@ export default function ListingEditScreen({ navigation }: { navigation: any }) {
           </View>
         </View>
         
-        <View style={[GlobalStyles.horizSectHeader]}>
-          <Text>Assets</Text>
-          <TouchableOpacity onPress={onAssetAdd}>
-            <Text style={[GlobalStyles.textAction]}>Add</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={[GlobalStyles.horizSectCt]}>
-          {assets.map((asset, index) => (
-            <AssetItem asset={asset} key={index} onPress={() => onAssetClick(asset)} />
-          ))}
-          {assets.length === 0 && (
-            <View style={[GlobalStyles.horizSect, { justifyContent: 'center' }]}>
-              <Text>Please provide at least one asset.</Text>
-            </View>
-          )}
-        </View>
+        <AssetSection assets={assets} setAssets={setAssets} mode={2} />
         <Text style={[GlobalStyles.explanatory, { marginTop: -8, marginBottom: 24 }]}>
           Assets are only seen after someone has purchased your listing.
         </Text>
@@ -241,41 +227,5 @@ export default function ListingEditScreen({ navigation }: { navigation: any }) {
   );
 }
 
-function AssetItem({ asset, onPress }: { asset: Asset, onPress: () => any }) {
-
-  const assetTitle = asset.type == 'link' ? asset.link : asset.name; 
-  const icon = asset.type == 'link' ? 'link' : 'description';
-
-  const GlobalStyles = useGlobalStyles();
-  const colorScheme = useColorScheme();
-  const styles = StyleSheet.create({
-    container: {
-      flexDirection: 'row',
-      height: 56,
-      justifyContent: 'flex-start',
-    },
-    circle: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginRight: 12
-    },
-    title: {
-      overflow: 'hidden',
-    }
-  });
-  return (
-    <TouchableHighlight style={{ borderRadius: 8 }} onPress={onPress}>
-      <View style={[GlobalStyles.horizSect, styles.container]}>
-        <View style={[styles.circle, { backgroundColor: Colors[colorScheme].background2 }]}>
-          <MaterialIcons name={icon} size={24} color={Colors[colorScheme].tint} />
-        </View>
-        <Text numberOfLines={1} style={{ flex: 1 }}>{assetTitle}</Text>
-      </View>
-    </TouchableHighlight>
-  );
-}
 
 
