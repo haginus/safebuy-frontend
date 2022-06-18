@@ -106,7 +106,6 @@ export default function PaymentMainScreen({ navigation, route }: PaymentStackScr
         await dispatch(fetchMyListings());
         navigation.goBack();
       } else {
-        console.log(result)
         setErrorMessage((result as any).error.message);
         setIsLoading(false);
       }

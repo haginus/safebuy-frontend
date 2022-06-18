@@ -1,9 +1,10 @@
+import { MaterialIcons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { RefreshControl, StyleSheet } from 'react-native';
+import { RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ListingCard } from '../components/ListingCard';
 
-import { ScrollView, Text, View } from '../components/Themed';
+import { ScrollView, Text } from '../components/Themed';
 import { useGlobalStyles } from '../constants/GlobalStyles';
 import { useAppDispatch, useAppSelector } from '../hooks/storeHooks';
 import { fetchMyListings } from '../store/marketplaceSlice';
@@ -36,7 +37,13 @@ export default function MyListingsScreen({ navigation }: RootTabScreenProps<'MyL
       />
     }>
       <SafeAreaView>
-        <Text style={[GlobalStyles.header1]}>My Listings</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Text style={[GlobalStyles.header1]}>My Listings</Text>
+          <TouchableOpacity onPress={ () => navigation.push('Listing', { screen: 'ListingEdit', params: {} })}>
+            <MaterialIcons name="add" size={28}></MaterialIcons>
+          </TouchableOpacity>
+        </View>
+        
         {myListings.map((listing, index) => (
           <ListingCard 
             listing={listing} 

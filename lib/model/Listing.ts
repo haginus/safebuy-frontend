@@ -26,3 +26,7 @@ export interface ListingCreate extends ListingBase {
   listingCategoryId: number;
   assets: Asset[];
 }
+
+export interface ListingUpdate extends ListingCreate {
+  id: number;
+}

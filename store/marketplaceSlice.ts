@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '.';
 import { Service } from '../lib/constants';
 import { Asset } from '../lib/model/Asset';
-import { Listing, ListingBase, ListingCreate, ListingDetails } from '../lib/model/Listing';
+import { Listing, ListingBase, ListingCreate, ListingDetails, ListingUpdate } from '../lib/model/Listing';
 import { ListingCategory } from '../lib/model/ListingCategory';
 import { apiCall, formatUrlParams } from '../lib/util';
 import { createAsyncThunk } from './util';
@@ -29,6 +29,11 @@ const initialState: MarketplaceState = {
 
 export const createListing = createAsyncThunk<ListingDetails, ListingCreate>('marketplace/createListing', async (data, { getState }) => {
   const listing = await apiCall<ListingDetails>(Service.MARKETPLACE, `/listings/`, "POST", data);
+  return listing;
+});
+
+export const updateListing = createAsyncThunk<ListingDetails, ListingUpdate>('marketplace/updateListing', async (data, { getState }) => {
+  const listing = await apiCall<ListingDetails>(Service.MARKETPLACE, `/listings/${data.id}`, "PUT", data);
   return listing;
 });
 
@@ -77,6 +82,13 @@ export const userSlice = createSlice({
     builder
       .addCase(createListing.fulfilled, (state, action) => {
         state.myListings.push(action.payload);
+        _updateListingIndex(state, [action.payload], 'myListingsIndex');
+      })
+      .addCase(updateListing.fulfilled, (state, action) => {
+        const index = state.myListings.findIndex(l => l.id === action.payload.id);
+        if (index >= 0) {
+          state.myListings[index] = action.payload;
+        }
         _updateListingIndex(state, [action.payload], 'myListingsIndex');
       })
       .addCase(searchListings.rejected, (state, action) => {

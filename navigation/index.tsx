@@ -108,14 +108,6 @@ function BottomTabNavigator() {
         }}
       />
       <BottomTab.Screen
-        name="SellTab"
-        component={ListingEditScreen}
-        options={{
-          title: 'Add a listing',
-          tabBarIcon: ({ color }) => <TabBarIcon name="plus-circle-outline" color={color} />,
-        }}
-      />
-      <BottomTab.Screen
         name="AccountTab"
         component={AccountScreen}
         options={{

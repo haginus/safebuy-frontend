@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { ActionSheetIOS, ActivityIndicator, Alert, StyleSheet, Switch, TouchableHighlight, TouchableOpacity } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -15,9 +15,10 @@ import * as FileSystem from 'expo-file-system';
 import { Button } from '../../components/Button';
 import { Listing, ListingCreate } from '../../lib/model/Listing';
 import { useAppDispatch, useAppSelector } from '../../hooks/storeHooks';
-import { createListing } from '../../store/marketplaceSlice';
+import { createListing, selectListing, updateListing } from '../../store/marketplaceSlice';
 import { parseError } from '../../components/ErrorMessage';
 import AssetSection from '../../components/AssetSection';
+import { ListingStackScreenProps } from '../../types';
 
 interface FormValue {
   title: string;
@@ -26,9 +27,9 @@ interface FormValue {
   needsPersonalization: boolean;
 }
 
-export default function ListingEditScreen({ navigation }: { navigation: any }) {
+export default function ListingEditScreen({ navigation, route }: ListingStackScreenProps<'ListingEdit'>) {
 
-  const { control, handleSubmit, formState: { errors, isValid: isFormValid } } = useForm<FormValue>({
+  const { control, handleSubmit, setValue, formState: { errors, isValid: isFormValid } } = useForm<FormValue>({
     defaultValues: {
       title: '',
       description: '',
@@ -38,13 +39,25 @@ export default function ListingEditScreen({ navigation }: { navigation: any }) {
     mode: 'onChange',
   });
 
+  const mode = route.params?.id ? 'edit' : 'add';
+
   const [assets, setAssets] = useState<Asset[]>([]);
   const user = useAppSelector(state => state.user.currentUser);
+  const existingListing = useAppSelector(state => selectListing(state, Number(route.params?.id)));
 
   const isValid = isFormValid && assets.length > 0;
   const [isLoading, setIsLoading] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if(mode == 'add') return;
+    setValue('title', existingListing.title);
+    setValue('description', existingListing.description);
+    setValue('price', '' + existingListing.price);
+    setValue('needsPersonalization', existingListing.needsPersonalization);
+    setAssets(existingListing.assets);
+  }, []);
 
   const onSubmit = async (data: FormValue) => {
     if(!isValid || isLoading) return;
@@ -56,23 +69,27 @@ export default function ListingEditScreen({ navigation }: { navigation: any }) {
       ownerId: user?.id as number,
     }
     setIsLoading(true);
-    const result = await dispatch(createListing(listing));
+
+    const result = await (mode == 'add' ? dispatch(createListing(listing)) : dispatch(updateListing({...listing, id: existingListing.id })));
     if(result.meta.requestStatus == 'rejected') {
       setIsLoading(false);
       parseError(result, setSubmitError);
     } else {
       setIsLoading(false);
-      // navigation
+      if(mode == 'add') {
+        navigation.replace('Root');
+      } else {
+        navigation.goBack();
+      }
     }
   };
 
   const GlobalStyles = useGlobalStyles();
 
   return (
-    <ScrollView style={GlobalStyles.container}>
-      <SafeAreaView edges={['bottom']}>
+      <ScrollView style={[GlobalStyles.container]} contentContainerStyle={[styles.scrollView]}>
         <Text style={[GlobalStyles.header1]}>
-          New listing
+          { mode == 'add' ? 'New listing' : 'Edit listing' }
         </Text>
         { submitError }
         <Controller
@@ -164,11 +181,17 @@ export default function ListingEditScreen({ navigation }: { navigation: any }) {
           icon={() => isLoading && <ActivityIndicator color='#fff'/>}
           onPress={handleSubmit(onSubmit)}
           disabled={!isValid || isLoading}
+          style={{ marginBottom: 36 }}
         ></Button>
-      </SafeAreaView>
-    </ScrollView>
+      </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  scrollView: {
+    paddingTop: 72,
+  }
+});
 
 
 

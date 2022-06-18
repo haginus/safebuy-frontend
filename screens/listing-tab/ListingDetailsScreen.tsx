@@ -71,6 +71,10 @@ export default function ListingDetailsScreen({ navigation, route }: ListingStack
     return apiCall<ListingOffer>(Service.MARKETPLACE, `/listings/${listingId}/offer/buyer-decline`, "POST");
   }
 
+  const goEdit = () => {
+    navigation.push('ListingEdit', { id: listing.id })
+  }
+
   const dispatchAction = async (fn: () => Promise<any>) => {
     setIsSubmitting(true);
     setSubmitError(null);
@@ -114,7 +118,7 @@ export default function ListingDetailsScreen({ navigation, route }: ListingStack
             { listingMeta && (
               (
                 listingMeta.perspective == 'seller' && (
-                  (!listingMeta.originalStatus && <Button icon="edit" title='Edit' />) ||
+                  (!listingMeta.originalStatus && <Button icon="edit" title='Edit' onPress={goEdit} />) ||
                   (listingMeta.originalStatus == 'PENDING_SELLER_ACTION' && <Button icon="check" title='Done' onPress={() => dispatchAction(sellerConfirm)} />)
                 )
               ) || (
