@@ -24,14 +24,15 @@ import LinkingConfiguration from './LinkingConfiguration';
 import { ListingStackNavigator } from './ListingStackNavigator';
 import AccountScreen from '../screens/AccountScreen';
 import { PaymentNavigator } from './PaymentNavigator';
-import ListingEditScreen from '../screens/listing-edit/ListingEditScreen';
+import ListingEditScreen from '../screens/listing-tab/ListingEditScreen';
 import SearchListingsTab from '../screens/bottom-tabs/SearchListingsTab';
 
 export default function Navigation({ colorScheme, authState }: { colorScheme: ColorSchemeName, authState: AuthState }) {
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
-      theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
+      fallback={<SplashScreen/>}>
       <RootNavigator authState={ authState } />
     </NavigationContainer>
   );

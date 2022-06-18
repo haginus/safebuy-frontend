@@ -62,6 +62,7 @@ export type RootTabScreenProps<Screen extends keyof RootTabParamList> = Composit
 
 export type ListingStackParamList = {
   ListingDetails: { id: number };
+  ListingEdit: { id?: number };
 };
 
 export type ListingStackScreenProps<Screen extends keyof ListingStackParamList> = CompositeScreenProps<

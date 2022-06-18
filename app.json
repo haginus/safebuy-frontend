@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "safebuy-frontend",
-    "slug": "safebuy-frontend",
+    "name": "Safebuy",
+    "slug": "Safebuy",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "safebuy",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
