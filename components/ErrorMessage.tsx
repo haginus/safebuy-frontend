@@ -15,10 +15,10 @@ export function ErrorMessage({ message, style, ...otherProps }: ErrorMessageProp
   );
 }
 
-export function parseError(dispatchResult: any, setError: (message: any) => void) {
+export function parseError(dispatchResult: any, setError: (message: any) => void, viewProps?: View['props']) {
   if (dispatchResult.error) {
     const error = dispatchResult.error as GenericError;
-    setError(<ErrorMessage message={error.message}/>);
+    setError(<ErrorMessage message={error.message} {...viewProps} />);
   }
   return null;
 }

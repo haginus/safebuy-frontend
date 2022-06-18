@@ -40,6 +40,20 @@ export const makeAccountTransaction = createAsyncThunk<Transaction, MakeAccountT
   const accountId = getState().user.currentUser?.id;
   return apiCall<Transaction>(Service.PAYMENT, `/transactions/${type}/${accountId}/`, "POST", data);
 });
+
+export interface MakeListingTransactionData {
+  amount: number;
+  paymentMethod: PaymentMethod | 'balance';
+  listingId: number;
+  accountId?: number;
+}
+
+export const buyListing = createAsyncThunk<Transaction, MakeListingTransactionData>('payment/buyListing', async (data, { getState }) => {
+  const accountId = getState().user.currentUser?.id;
+  data = { ...data, accountId, paymentMethod: undefined } as any;
+  return apiCall<Transaction>(Service.PAYMENT, `/transactions/marketplace/buy/`, "POST", data);
+});
+
 export type PaymentCurrentAction = { type: 'topup' } | { type: 'withdraw' } | { type: 'buyListing', listingId: number } | null;
 
 export const userSlice = createSlice({
@@ -64,6 +78,9 @@ export const userSlice = createSlice({
       .addCase(fetchAccount.fulfilled, (state, action) => {
         state.balance = action.payload.balance;
         state.paymentMethods = action.payload.paymentMethods;
+      })
+      .addCase(buyListing.fulfilled, (state, action) => {
+        state.balance -= action.payload.amount;
       });
   },
 });

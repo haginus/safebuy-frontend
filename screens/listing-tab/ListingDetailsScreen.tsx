@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Image, StyleSheet } from 'react-native';
+import { ActivityIndicator, Animated, Image, RefreshControl, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AssetSection, { AssetSectionMode } from '../../components/AssetSection';
 import { Button } from '../../components/Button';
+import { parseError } from '../../components/ErrorMessage';
 import { ArialText } from '../../components/StyledText';
 import { Tag } from '../../components/Tag';
 import { Text, View, ScrollView } from '../../components/Themed';
@@ -10,12 +11,14 @@ import Colors from '../../constants/Colors';
 import { useGlobalStyles } from '../../constants/GlobalStyles';
 import { useAppDispatch, useAppSelector } from '../../hooks/storeHooks';
 import useColorScheme from '../../hooks/useColorScheme';
+import { Service } from '../../lib/constants';
 import { getListingMeta } from '../../lib/listing-meta';
 import { Asset } from '../../lib/model/Asset';
 
-import { Listing, ListingDetails } from '../../lib/model/Listing';
-import { AnimationAB, formatPrice } from '../../lib/util';
-import { fetchListing, selectListing } from '../../store/marketplaceSlice';
+import { ListingDetails } from '../../lib/model/Listing';
+import { ListingOffer } from '../../lib/model/ListingOffer';
+import { AnimationAB, apiCall, formatPrice } from '../../lib/util';
+import { fetchListing, fetchMyListings, selectListing } from '../../store/marketplaceSlice';
 import { ListingStackScreenProps, } from '../../types';
 
 export default function ListingDetailsScreen({ navigation, route }: ListingStackScreenProps<'ListingDetails'>) {
@@ -38,7 +41,7 @@ export default function ListingDetailsScreen({ navigation, route }: ListingStack
 
   useEffect(() => {
     dispatch(fetchListing(listingId));
-    pendingAnim.alternate();
+    pendingAnim.alternate(() => listingMeta?.isPending);
   }, []);
 
   useEffect(() => {
@@ -47,10 +50,55 @@ export default function ListingDetailsScreen({ navigation, route }: ListingStack
 
   const [assets, setAssets] = useState<Asset[]>([]);
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
+
+
+  const buyListing = () => {
+    navigation.push('Payment', { screen: 'PaymentMain', params: { action: 'buy-listing', listingId: listing.id } });
+  }
+
+  const sellerConfirm = () => {
+    return apiCall<ListingOffer>(Service.MARKETPLACE, `/listings/${listingId}/offer/seller-confirm`, "POST");
+  }
+
+  const buyerConfirm = () => {
+    return apiCall<ListingOffer>(Service.MARKETPLACE, `/listings/${listingId}/offer/buyer-confirm`, "POST");
+  }
+
+  const buyerDecline = () => {
+    return apiCall<ListingOffer>(Service.MARKETPLACE, `/listings/${listingId}/offer/buyer-decline`, "POST");
+  }
+
+  const dispatchAction = async (fn: () => Promise<any>) => {
+    setIsSubmitting(true);
+    setSubmitError(null);
+    try {
+      await fn();
+      await dispatch(fetchMyListings());
+    } catch(error) {
+      parseError({ error }, setSubmitError, { style: { marginTop: 16, marginBottom: 0 } });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  const onRefresh = async () => {
+    setIsRefreshing(true);
+    await dispatch(fetchListing(listingId));
+    setIsRefreshing(false);
+  }
+
   const GlobalStyles = useGlobalStyles();
 
   return (
-    <ScrollView style={styles.scrollView}>
+    <ScrollView style={styles.scrollView} refreshControl={
+      <RefreshControl
+        refreshing={isRefreshing}
+        onRefresh={onRefresh}
+      />}
+    >
       { listing && <SafeAreaView>
         <Image
           style={styles.coverImage}
@@ -61,26 +109,32 @@ export default function ListingDetailsScreen({ navigation, route }: ListingStack
           <ArialText style={[styles.price, { color: Colors[colorScheme].tint }]}>
             {formatPrice(listing.price)}
           </ArialText>
-          <View style={styles.listingActions}>
-            { !listingMeta && <Button icon="shopping-basket" title='Buy' /> }
+          { !isSubmitting && <View style={styles.listingActions}>
+            { !listingMeta && <Button icon="shopping-basket" title='Buy' onPress={buyListing} /> }
             { listingMeta && (
               (
                 listingMeta.perspective == 'seller' && (
                   (!listingMeta.originalStatus && <Button icon="edit" title='Edit' />) ||
-                  (listingMeta.originalStatus == 'PENDING_SELLER_ACTION' && <Button icon="check" title='Done' />)
+                  (listingMeta.originalStatus == 'PENDING_SELLER_ACTION' && <Button icon="check" title='Done' onPress={() => dispatchAction(sellerConfirm)} />)
                 )
               ) || (
                 listingMeta.perspective == 'buyer' && (
                   (listingMeta.originalStatus == 'PENDING_BUYER_CONFIRMATION' && (
                     <View style={[GlobalStyles.flexRow]}>
-                      <Button icon="check" title='Confirm' style={[{ marginRight: 12 }]} />
-                      <Button icon="close" title='Decline' />
+                      <Button icon="check" title='Confirm' style={[{ marginRight: 12 }]} onPress={() => dispatchAction(buyerConfirm)} />
+                      <Button icon="close" title='Decline' onPress={() => dispatchAction(buyerDecline)} />
                     </View>
                   )) 
                 )
               )
             )}
           </View>
+          }
+          { isSubmitting && <View style={styles.listingActions}>
+            <ActivityIndicator></ActivityIndicator>
+          </View> 
+          }
+          { submitError }
         </View>
 
         { listingMeta && 
@@ -106,7 +160,7 @@ export default function ListingDetailsScreen({ navigation, route }: ListingStack
         }
 
         { listingMeta && (
-          <AssetSection style={{ marginHorizontal: 16 }} assets={assets} setAssets={setAssets} mode={ 
+          <AssetSection style={{ marginHorizontal: 16 }} assets={assets} setAssets={setAssets} autoPush={{ listingId: listing.id}} mode={ 
             listingMeta.perspective == 'buyer' ? AssetSectionMode.VIEW : (
               listingMeta.originalStatus == 'PENDING_SELLER_ACTION' ? AssetSectionMode.ADD : AssetSectionMode.VIEW
               )

@@ -11,6 +11,9 @@ import DocumentPicker, { DocumentPickerResponse } from 'react-native-document-pi
 import RNFetchBlob from "rn-fetch-blob";
 import { MARKETPLACE_API_URL } from "../lib/constants";
 import { openActionSheet } from "../lib/action-sheet";
+import { useAppDispatch } from "../hooks/storeHooks";
+import { addAssets } from "../store/marketplaceSlice";
+import { parseGenericError } from "../lib/util";
 
 export enum AssetSectionMode {
   VIEW = 0,
@@ -23,7 +26,7 @@ type AssetSectionProps = {
   assets: Asset[];
   setAssets: Dispatch<SetStateAction<Asset[]>>;
   mode: AssetSectionMode;
-  autoPush?: boolean;
+  autoPush?: { listingId: number };
 } & View["props"];
 
 interface AssetMap {
@@ -43,6 +46,7 @@ const indexAsset = (asset: Asset) => {
 export default function AssetSection({ assets: assets, setAssets, mode, autoPush, style, ...props }: AssetSectionProps) {
 
   const [assetMap, setAssetMap] = useState<AssetMap>({});
+  const dispatch = useAppDispatch();
   const anyLoading = useMemo(() => Object.values(assetMap).some(({ isLoading }) => isLoading), [assetMap]);
 
   const onAssetAdd = () => {
@@ -55,7 +59,7 @@ export default function AssetSection({ assets: assets, setAssets, mode, autoPush
 
   const linkAdd = () => {
     Alert.prompt('Link', 'Enter the link', (link) => {
-      const re = /(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)/gm;
+      const re = /(https?:\/\/)(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)/gm;
       if(re.test(link)) {
         onAssetGenerated({ type: 'link', link });
       } else {
@@ -81,11 +85,20 @@ export default function AssetSection({ assets: assets, setAssets, mode, autoPush
   };
 
   const onAssetGenerated = (asset: Asset) => {
-    if(!!autoPush) {
-      // TODO: push to server
+    setAssets([...assets, asset]);
+    if(autoPush) {
+      pushAsset(asset);
+    }
+  }
 
+  const pushAsset = async (asset: Asset) => {
+    if(!autoPush) return;
+    setAssetMap({ ...assetMap, [indexAsset(asset)]: { isLoading: true, error: null } });
+    const result = await dispatch(addAssets({ listingId: autoPush.listingId, assets: [asset] }));
+    if(result.meta.requestStatus == 'fulfilled') {
+      setAssetMap({ ...assetMap, [indexAsset(asset)]: { isLoading: false, error: null } });
     } else {
-      setAssets([...assets, asset]);
+      setAssetMap({ ...assetMap, [indexAsset(asset)]: { isLoading: false, error: parseGenericError(result) } });
     }
   }
 
@@ -134,6 +147,14 @@ export default function AssetSection({ assets: assets, setAssets, mode, autoPush
 
     if(mode === AssetSectionMode.VIEW) {
       return viewAsset();
+    }
+
+    if(assetMap[indexAsset(asset)]?.error) {
+      return openActionSheet([
+        { title: 'Cancel', isCancel: true },
+        { title: 'Retry', onPress: () => pushAsset(asset) },
+        { title: 'Remove', isDistructive: true, onPress: removeAsset }
+      ]);
     }
 
     openActionSheet([

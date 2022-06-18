@@ -55,7 +55,7 @@ export default function App() {
     () => ({
       signIn: async (data) => {
         SecureStore.setItemAsync('userToken', data.token);
-        dispatch({ type: 'SIGN_IN', token: 'dummy-auth-token' });
+        dispatch({ type: 'SIGN_IN', token: data.token });
       },
       signOut: () => { 
         SecureStore.deleteItemAsync('userToken');

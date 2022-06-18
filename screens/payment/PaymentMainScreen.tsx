@@ -2,6 +2,7 @@ import { createRef, Reducer, useEffect, useMemo, useReducer, useState } from 're
 import { ActivityIndicator, NativeSyntheticEvent, Platform, StyleSheet, TextInput, TextInputKeyPressEventData, TextInputSelectionChangeEventData, View } from 'react-native';
 import { Button } from '../../components/Button';
 import { ErrorMessage } from '../../components/ErrorMessage';
+import { ListingCard } from '../../components/ListingCard';
 import { PaymentMethodSnapshot } from '../../components/payment/PaymentMethodSnapshot';
 
 import { SafeAreaView, ScrollView, Text, View as StyledView } from '../../components/Themed';
@@ -10,7 +11,8 @@ import { useGlobalStyles } from '../../constants/GlobalStyles';
 import { useAppDispatch, useAppSelector } from '../../hooks/storeHooks';
 import useColorScheme from '../../hooks/useColorScheme';
 import { formatPrice } from '../../lib/util';
-import { makeAccountTransaction, setSelectedListing, setSelectedPaymentMethod } from '../../store/paymentSlice';
+import { fetchMyListings, selectListing } from '../../store/marketplaceSlice';
+import { buyListing, makeAccountTransaction, setSelectedListing, setSelectedPaymentMethod } from '../../store/paymentSlice';
 import { PaymentStackScreenProps } from '../../types';
 
 const MIN_TRANSACTION_AMOUNT = 20;
@@ -18,7 +20,6 @@ const MIN_TRANSACTION_AMOUNT = 20;
 
 export default function PaymentMainScreen({ navigation, route }: PaymentStackScreenProps<'PaymentMain'>) {
   const GlobalStyles = useGlobalStyles();
-
 
   const actionType = route.params;
 
@@ -37,6 +38,7 @@ export default function PaymentMainScreen({ navigation, route }: PaymentStackScr
   const balance = useAppSelector(state => state.payment.balance);
   const paymentMethods = useAppSelector(state => state.payment.paymentMethods);
   const selectedPaymentMethod = useAppSelector(state => state.payment.selectedPaymentMethod);
+  const listing = useAppSelector(state => selectListing(state, Number(actionType.action == 'buy-listing' && actionType.listingId)))
   const dispatch = useAppDispatch();
 
   const [amountValue, setAmountValue] = useState('');
@@ -47,7 +49,7 @@ export default function PaymentMainScreen({ navigation, route }: PaymentStackScr
 
   const isAboveMinAmount = useMemo(() => parseFloat(amountValue) >= MIN_TRANSACTION_AMOUNT, [amountValue]);
   const isAboveBalance = useMemo(() => actionType.action != 'top-up' && parseFloat(amountValue) > balance, [amountValue, balance]);
-  const amountError = useMemo(() => (!isAboveMinAmount || isAboveBalance), [amountValue, isAboveMinAmount, isAboveMinAmount])
+  const amountError = useMemo(() => (actionType.action != 'buy-listing' && (!isAboveMinAmount || isAboveBalance)), [amountValue, isAboveMinAmount, isAboveMinAmount])
 
   function handleSelectionChange(event: NativeSyntheticEvent<TextInputSelectionChangeEventData>) {
     console.log(event.nativeEvent.selection)
@@ -94,11 +96,28 @@ export default function PaymentMainScreen({ navigation, route }: PaymentStackScr
         setErrorMessage((result as any).error.message);
         setIsLoading(false);
       }
+    } else {
+      let result = await dispatch(buyListing({ 
+        amount: listing.price,
+        paymentMethod: selectedPaymentMethod,
+        listingId: actionType.listingId,
+      }));
+      if(result.meta.requestStatus == 'fulfilled') {
+        await dispatch(fetchMyListings());
+        navigation.goBack();
+      } else {
+        console.log(result)
+        setErrorMessage((result as any).error.message);
+        setIsLoading(false);
+      }
     }
   }
 
   useEffect(() => {
     dispatch(setSelectedPaymentMethod(paymentMethods[0]));
+    if(actionType.action == 'buy-listing') {
+      dispatch(setSelectedListing(listing));
+    }
     return () => {
       dispatch(setSelectedListing(null));
     }
@@ -111,26 +130,29 @@ export default function PaymentMainScreen({ navigation, route }: PaymentStackScr
       <ScrollView style={[styles.container, GlobalStyles.container]}>
         <Text style={GlobalStyles.header1}>{title}</Text>
         { !!errorMessage && <ErrorMessage message={errorMessage}/> }
-        <StyledView style={[styles.section ]}>
-          <View style={styles.amountLine}>
-            <Text></Text>
-            <TextInput
-              style={styles.amount}
-              placeholder='0 RON' 
-              keyboardType='numeric' 
-              onSelectionChange={handleSelectionChange}
-              ref={amountInput}
-              onKeyPress={handleKeyPress}
-              value={amountValue}
-            />
-          </View>
-          <View style={[styles.amountLine, { marginTop: 8 }]}>
-            <Text style={[{ color: Colors[colorScheme].muted }, amountError && { color: Colors[colorScheme].errorText }]}>
-              Balance: {formatPrice(balance, 'RON')}
-            </Text>
-            { !isAboveMinAmount && <Text style={[{ color: Colors[colorScheme].errorText }]}>{formatPrice(MIN_TRANSACTION_AMOUNT, 'RON')} minimum</Text>}
-          </View>
-        </StyledView>
+        { actionType.action != 'buy-listing' &&
+          <StyledView style={[styles.section ]}>
+            <View style={styles.amountLine}>
+              <Text></Text>
+              <TextInput
+                style={styles.amount}
+                placeholder='0 RON' 
+                keyboardType='numeric' 
+                onSelectionChange={handleSelectionChange}
+                ref={amountInput}
+                onKeyPress={handleKeyPress}
+                value={amountValue}
+              />
+            </View>
+            <View style={[styles.amountLine, { marginTop: 8 }]}>
+              <Text style={[{ color: Colors[colorScheme].muted }, amountError && { color: Colors[colorScheme].errorText }]}>
+                Balance: {formatPrice(balance, 'RON')}
+              </Text>
+              { !isAboveMinAmount && <Text style={[{ color: Colors[colorScheme].errorText }]}>{formatPrice(MIN_TRANSACTION_AMOUNT, 'RON')} minimum</Text>}
+            </View>
+          </StyledView>
+        }
+        { actionType.action == 'buy-listing' && <ListingCard listing={listing} small/>}
         { selectedPaymentMethod && <PaymentMethodSnapshot 
           paymentMethod={selectedPaymentMethod} 
           style={[{ marginTop: 16 } ]} 

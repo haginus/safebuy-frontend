@@ -11,9 +11,10 @@ import { Text, View as StyledView } from "./Themed";
 export interface ListingCardProps {
   listing: Listing | ListingDetails;
   onPress?: () => void;
+  small?: boolean;
 }
 
-export function ListingCard({ listing, onPress }: ListingCardProps) {
+export function ListingCard({ listing, onPress, small }: ListingCardProps) {
   const colorScheme = useColorScheme();
 
   const userId = useAppSelector(state => state.user.currentUser?.id);
@@ -21,10 +22,10 @@ export function ListingCard({ listing, onPress }: ListingCardProps) {
   const isOwner = listingMeta && listingMeta.perspective == 'seller';
   
   return (
-    <TouchableHighlight onPress={ onPress } style={ styles.highlight}>
-      <StyledView style={styles.listingContainer} darkColor="#222">
+    <TouchableHighlight onPress={ onPress } style={styles.highlight}>
+      <StyledView style={[styles.listingContainer, small && styles.listingContainerSmall]} darkColor="#222">
         <Image
-          style={styles.coverImage}
+          style={[styles.coverImage, small && styles.coverImageSmall]}
           source={require("../assets/images/icon.png")}
         />
         <View style={styles.listingInfoContainer}>
@@ -32,14 +33,16 @@ export function ListingCard({ listing, onPress }: ListingCardProps) {
             <Text style={styles.title}>{listing.title}</Text>
             <Text style={styles.price}>{formatPrice(listing.price)}</Text>
           </View>
-          <View>
-            { listingMeta && <Text style={styles.shortStatus}>{listingMeta.shortStatus}</Text>}
-            { isOwner ? <Text>Your listing</Text> : (
-              <Text style={ { color: Colors[colorScheme].muted }}>
-                {listing.owner?.firstName} {listing.owner?.lastName}
-              </Text> 
-            )}
-          </View>
+          {!small && 
+            <View>
+              { listingMeta && <Text style={styles.shortStatus}>{listingMeta.shortStatus}</Text>}
+              { isOwner ? <Text>Your listing</Text> : (
+                <Text style={ { color: Colors[colorScheme].muted }}>
+                  {listing.owner?.firstName} {listing.owner?.lastName}
+                </Text> 
+              )}
+            </View>
+          }
         </View>
       </StyledView>
     </TouchableHighlight>
@@ -61,11 +64,18 @@ const styles = StyleSheet.create({
     height: 140,
     borderRadius: 10
   },
+  listingContainerSmall: {
+    height: 100,
+  },
   coverImage: {
     height: 140,
     width: 140,
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
+  },
+  coverImageSmall: {
+    height: 100,
+    width: 100,
   },
   listingInfoContainer: {
     flex: 1,

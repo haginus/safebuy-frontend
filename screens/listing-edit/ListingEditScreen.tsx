@@ -66,63 +66,6 @@ export default function ListingEditScreen({ navigation }: { navigation: any }) {
     }
   };
 
-  const onAssetAdd = () => {
-    ActionSheetIOS.showActionSheetWithOptions(
-      {
-        options: ["Cancel", "Link", "File"],
-        cancelButtonIndex: 0,
-      },
-      buttonIndex => {
-        if (buttonIndex === 0) {
-          // cancel action
-        } else if (buttonIndex === 1) {
-          linkAdd();
-        } else if (buttonIndex === 2) {
-          fileAdd();
-        }
-      }
-    );
-  }
-
-  const linkAdd = () => {
-    Alert.prompt('Link', 'Enter the link', (link) => {
-      const re = /(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)/gm;
-      if(re.test(link)) {
-        setAssets([...assets, { type: 'link', link }]);
-      } else {
-        Alert.alert('Invalid link');
-      }
-    });
-  }
-
-  const fileAdd = async () => {
-    let pickedFile: DocumentPickerResponse;
-    try {
-      pickedFile = (await DocumentPicker.pick())[0];
-    } catch (err)  {
-      return;
-    }
-    
-    let content = await FileSystem.readAsStringAsync(pickedFile.uri, { 
-      encoding: FileSystem.EncodingType.Base64 
-    });
-    content = `data:${pickedFile.type};base64,` + content;
-    const asset: Asset = { type: 'file', name: pickedFile.name, mimeType: pickedFile.type as string, content };
-    setAssets([...assets, asset]);
-  };
-
-  const onAssetClick = (asset: Asset) => {
-    ActionSheetIOS.showActionSheetWithOptions({
-      options: ["Cancel", "Remove"],
-      cancelButtonIndex: 0,
-      destructiveButtonIndex: 1,
-    }, (buttonIndex) => {
-      if (buttonIndex === 1) {
-        setAssets(assets.filter(a => a !== asset));
-      }
-    });
-  }
-
   const GlobalStyles = useGlobalStyles();
 
   return (

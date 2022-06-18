@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '.';
 import { Service } from '../lib/constants';
+import { Asset } from '../lib/model/Asset';
 import { Listing, ListingBase, ListingCreate, ListingDetails } from '../lib/model/Listing';
 import { ListingCategory } from '../lib/model/ListingCategory';
 import { apiCall, formatUrlParams } from '../lib/util';
@@ -52,6 +53,15 @@ export const fetchListing = createAsyncThunk<ListingDetails, number>('marketplac
   return apiCall<ListingDetails>(Service.MARKETPLACE, `/listings/${id}/details`, "GET");;
 });
 
+type AddAssetsPayload = {
+  listingId: number;
+  assets: Asset[];
+}
+
+export const addAssets = createAsyncThunk<ListingDetails, AddAssetsPayload>('marketplace/addAssets', async (payload, { getState }) => {
+  return apiCall<ListingDetails>(Service.MARKETPLACE, `/listings/${payload.listingId}/assets`, "POST", payload.assets);;
+});
+
 export const userSlice = createSlice({
   name: 'marketplace',
   initialState,
@@ -85,15 +95,24 @@ export const userSlice = createSlice({
         _updateListingIndex(state, action.payload, 'myListingsIndex');
       })
       .addCase(fetchListing.fulfilled, (state, action) => {
+        _updateListingIndex(state, [action.payload], 'myListingsIndex');
+      })
+      .addCase(addAssets.fulfilled, (state, action) => {
+        const idx = state.myListings.findIndex(listing => listing.id === action.payload.id);
+        if (idx >= 0) {
+          state.myListings[idx] = action.payload;
+        }
         state.myListingsIndex[action.payload.id] = action.payload;
       })
   }
 });
 
 function _updateListingIndex(state: MarketplaceState, listings: Listing[], index: 'searchListingsIndex' | 'myListingsIndex') {
+  const idx = { ...state[index] };
   listings.forEach(listing => {
-    state[index][listing.id] = listing;
+    idx[listing.id] = listing;
   });
+  state[index] = { ...idx } as any;
 }
 
 export const { setSelectedCategory, setSearchString } = userSlice.actions;

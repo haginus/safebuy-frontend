@@ -1,6 +1,7 @@
 import { Service, USER_API_URL, PAYMENT_API_URL, MARKETPLACE_API_URL } from "./constants";
 import * as SecureStore from 'expo-secure-store';
 import { Animated } from "react-native";
+import { GenericError } from "./model/GenericError";
 
 export async function apiCall<R>(service: Service, url: string, method: string, data?: any) {
   const urls = {
@@ -83,7 +84,7 @@ export class AnimationAB {
     this._generateAnim('to').start(callback);
   }
   
-  alternate(until?: () => boolean) {
+  alternate(until?: () => boolean | undefined) {
     const _until = (until || (() => true));
     _until() && this.toA(() => _until() && this.toB(() => this.alternate(until)));
   }
@@ -102,4 +103,11 @@ export class AnimationAB {
     });
     return Animated.parallel(timingArr);
   }
+}
+
+export function parseGenericError(dispatchResult: any) {
+  if(dispatchResult.error) {
+    return (dispatchResult.error as GenericError).message
+  }
+  return null;
 }
