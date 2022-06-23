@@ -11,9 +11,10 @@ export async function apiCall<R>(service: Service, url: string, method: string, 
   }
   
   const resultUrl = new URL(url, urls[service]).toString();
-  const headers = new Headers();
+  let headers = new Headers();
   headers.append("Content-Type", "application/json");
-  const token = await SecureStore.getItemAsync("token");
+  headers.append("Accept", "application/json");
+  const token = await SecureStore.getItemAsync("userToken");
   if(token) {
     headers.append("Authorization", `Bearer ${token}`);
   }
